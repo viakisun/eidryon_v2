@@ -1,22 +1,24 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { 
-  Search, Filter, Database, TrendingUp, TrendingDown, BarChart3, PieChart,
-  LineChart, Activity, Eye, Camera, Radio, Satellite, Globe, Radar,
-  Users, UserCheck, UserX, Target, AlertTriangle, AlertCircle, Info,
-  CheckCircle, XCircle, Clock, Calendar, MapPin, Navigation, Compass,
-  Shield, Zap, Brain, Cpu, Network, Signal, Wifi, WifiOff,
-  FileText, Download, Upload, Save, Share2, Archive, Folder, FolderOpen,
-  Book, Bookmark, Tag, Star, Award, Trophy, Medal, Flag, Home,
-  Settings, Layers, Grid3X3, ZoomIn, ZoomOut, Maximize2, Minimize2,
-  RefreshCw, RotateCcw, Play, Pause, Square, FastForward, Rewind,
-  ChevronUp, ChevronDown, ChevronLeft, ChevronRight, MoreHorizontal,
-  Plus, Minus, X, Edit3, Copy, Trash2, Lock, Unlock, Key,
-  Bell, BellOff, Volume2, VolumeX, Monitor, Headphones, MessageSquare,
-  Phone, Mail, Send, Inbox, Hash, Percent, DollarSign,
-  Thermometer, Wind, CloudRain, Sun, Moon, Sunrise, Sunset,
-  Map, Route, Crosshair, Move, MousePointer, Hand, Scissors,
-  Ruler, Calculator, Timer, AlarmClock
+  Search, Database, TrendingUp, BarChart3,
+  Activity, Camera, Radio, Satellite, Globe, Radar,
+  Users, Target, Info,
+  CheckCircle, Clock,
+  Brain,
+  FileText, Download, Share2, Archive,
+  Bookmark, Flag,
+  RefreshCw,
+  Plus,
+  MessageSquare,
 } from 'lucide-react';
+
+type Source = 'SIGINT' | 'GEOINT' | 'ELINT' | 'IMINT' | 'HUMINT' | 'OSINT';
+type Priority = 'HIGH' | 'MEDIUM' | 'LOW';
+type Classification = 'SECRET' | 'CONFIDENTIAL' | 'UNCLASSIFIED';
+type ThreatLevel = 'HIGH' | 'MEDIUM' | 'LOW';
+
 
 const AnalystView = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -24,7 +26,7 @@ const AnalystView = () => {
   const [timeRange, setTimeRange] = useState('24H');
   const [confidenceFilter, setConfidenceFilter] = useState(50);
   const [analysisMode, setAnalysisMode] = useState('realtime');
-  const [selectedReport, setSelectedReport] = useState(null);
+  const [selectedReport, setSelectedReport] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeAnalysis, setActiveAnalysis] = useState([]);
 
@@ -141,7 +143,7 @@ const AnalystView = () => {
     return matchesSource && matchesConfidence && matchesSearch;
   });
 
-  const getSourceIcon = (source) => {
+  const getSourceIcon = (source: Source) => {
     switch(source) {
       case 'SIGINT': return <Radio className="w-4 h-4 text-blue-400" />;
       case 'GEOINT': return <Satellite className="w-4 h-4 text-green-400" />;
@@ -153,7 +155,7 @@ const AnalystView = () => {
     }
   };
 
-  const getPriorityColor = (priority) => {
+  const getPriorityColor = (priority: Priority) => {
     switch(priority) {
       case 'HIGH': return 'border-red-500 text-red-400';
       case 'MEDIUM': return 'border-yellow-500 text-yellow-400';
@@ -162,7 +164,7 @@ const AnalystView = () => {
     }
   };
 
-  const getClassificationColor = (classification) => {
+  const getClassificationColor = (classification: Classification) => {
     switch(classification) {
       case 'SECRET': return 'text-red-400 bg-red-900/30';
       case 'CONFIDENTIAL': return 'text-yellow-400 bg-yellow-900/30';
@@ -171,7 +173,7 @@ const AnalystView = () => {
     }
   };
 
-  const getThreatLevelColor = (level) => {
+  const getThreatLevelColor = (level: ThreatLevel) => {
     switch(level) {
       case 'HIGH': return 'text-red-400';
       case 'MEDIUM': return 'text-yellow-400';
@@ -180,7 +182,7 @@ const AnalystView = () => {
     }
   };
 
-  const verifyReport = (reportId) => {
+  const verifyReport = (reportId: string) => {
     setIntelReports(prev => 
       prev.map(report => 
         report.id === reportId ? { ...report, verified: true } : report
@@ -188,7 +190,7 @@ const AnalystView = () => {
     );
   };
 
-  const correlateReports = (reportId) => {
+  const correlateReports = (reportId: string) => {
     const report = intelReports.find(r => r.id === reportId);
     if (report) {
       const related = intelReports.filter(r => 
