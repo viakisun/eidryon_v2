@@ -19,6 +19,24 @@ type Priority = 'HIGH' | 'MEDIUM' | 'LOW';
 type Classification = 'SECRET' | 'CONFIDENTIAL' | 'UNCLASSIFIED';
 type ThreatLevel = 'HIGH' | 'MEDIUM' | 'LOW';
 
+type IntelReport = {
+  id: string;
+  timestamp: Date;
+  source: Source;
+  classification: Classification;
+  priority: Priority;
+  confidence: number;
+  title: string;
+  summary: string;
+  details: string;
+  location: { lat: number; lng: number };
+  tags: string[];
+  analyst: string;
+  verified: boolean;
+  relatedReports: string[];
+  correlatedReports?: IntelReport[];
+};
+
 
 const AnalystView = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -26,11 +44,11 @@ const AnalystView = () => {
   const [timeRange, setTimeRange] = useState('24H');
   const [confidenceFilter, setConfidenceFilter] = useState(50);
   const [analysisMode, setAnalysisMode] = useState('realtime');
-  const [selectedReport, setSelectedReport] = useState<any>(null);
+  const [selectedReport, setSelectedReport] = useState<IntelReport | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeAnalysis, setActiveAnalysis] = useState([]);
+  const [activeAnalysis, setActiveAnalysis] = useState<unknown[]>([]);
 
-  const [intelReports, setIntelReports] = useState([
+  const [intelReports, setIntelReports] = useState<IntelReport[]>([
     {
       id: 'RPT-2025-001',
       timestamp: new Date(Date.now() - 1800000),
