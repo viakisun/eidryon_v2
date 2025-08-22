@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Map, MapPin, Navigation, Target, Route, Clock, Settings, Save, Upload, 
@@ -6,7 +7,7 @@ import {
   ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Calculator,
   Compass, Gauge, Wind, Thermometer, CloudRain, Sun, Brain, Cpu,
   TrendingUp, BarChart3, Sparkles, RefreshCw, Zap as Lightning,
-  Activity, Users, Globe, Radar, Satellite, Wifi, Signal, Tower,
+  Activity, Users, Globe, Radar, Satellite, Wifi, Signal, TowerControl as Tower,
   AlertCircle, Info, CheckCircle, XCircle, Rss, Database, Network,
   Monitor, Headphones, MessageSquare, Bell, Filter, Search, Layers,
   MapIcon, Crosshair as TargetIcon, Users as EnemyIcon, Truck
@@ -14,9 +15,73 @@ import {
 
 const MissionPlanningSystem = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [selectedAsset, setSelectedAsset] = useState('UAV-001');
+  const [selectedAsset, setSelectedAsset] = useState<string | null>('UAV-001');
   const [missionMode, setMissionMode] = useState('planning');
-  const [waypoints, setWaypoints] = useState([]);
+  interface Waypoint {
+    id: number;
+    x: number;
+    y: number;
+    altitude: number;
+    speed: number;
+    action: string;
+    loiterTime: number;
+    coordinates: {
+      lat: number;
+      lng: number;
+    };
+  }
+
+  interface LiveThreat {
+    id: number;
+    x: number;
+    y: number;
+    type: string;
+    confidence: number;
+    source: string;
+    timestamp: Date;
+    movement: boolean;
+    threat_level: string;
+  }
+
+  interface EnemyUnit {
+    id: number;
+    x: number;
+    y: number;
+    type: string;
+    size: string;
+    status: string;
+    confidence: number;
+    lastSeen: Date;
+  }
+
+  interface FriendlyUnit {
+    id: number;
+    x: number;
+    y: number;
+    type: string;
+    size: string;
+    status: string;
+    callsign: string;
+  }
+
+  interface IntelReport {
+    id: number;
+    timestamp: Date;
+    source: string;
+    classification: string;
+    confidence: number;
+    priority: string;
+    type: string;
+    title: string;
+    content: string;
+    location?: {
+      x: number;
+      y: number;
+    };
+    actionRequired: boolean;
+  }
+
+  const [waypoints, setWaypoints] = useState<Waypoint[]>([]);
   const [currentWaypoint, setCurrentWaypoint] = useState(0);
   const [selectedTool, setSelectedTool] = useState('waypoint');
   const [aiOptimizing, setAiOptimizing] = useState(false);
@@ -34,10 +99,10 @@ const MissionPlanningSystem = () => {
     }
   });
 
-  const [liveThreats, setLiveThreats] = useState([]);
-  const [enemyUnits, setEnemyUnits] = useState([]);
-  const [friendlyUnits, setFriendlyUnits] = useState([]);
-  const [intelReports, setIntelReports] = useState([]);
+  const [liveThreats, setLiveThreats] = useState<LiveThreat[]>([]);
+  const [enemyUnits, setEnemyUnits] = useState<EnemyUnit[]>([]);
+  const [friendlyUnits, setFriendlyUnits] = useState<FriendlyUnit[]>([]);
+  const [intelReports, setIntelReports] = useState<IntelReport[]>([]);
   const [situationalAwareness, setSituationalAwareness] = useState({
     threatLevel: 'MODERATE',
     enemyActivity: 'NORMAL',
@@ -57,7 +122,7 @@ const MissionPlanningSystem = () => {
     possible: true
   });
 
-  const mapRef = useRef(null);
+  const mapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -223,8 +288,8 @@ const MissionPlanningSystem = () => {
 
     // 초기 위협
     setLiveThreats([
-      { id: 1, x: 40, y: 30, type: 'sam_site', confidence: 95, source: 'GEOINT', threat_level: 'HIGH', timestamp: new Date() },
-      { id: 2, x: 65, y: 55, type: 'radar', confidence: 80, source: 'ELINT', threat_level: 'MEDIUM', timestamp: new Date() }
+      { id: 1, x: 40, y: 30, type: 'sam_site', confidence: 95, source: 'GEOINT', threat_level: 'HIGH', timestamp: new Date(), movement: false },
+      { id: 2, x: 65, y: 55, type: 'radar', confidence: 80, source: 'ELINT', threat_level: 'MEDIUM', timestamp: new Date(), movement: false }
     ]);
 
     // 초기 인텔 보고서
@@ -330,7 +395,7 @@ const MissionPlanningSystem = () => {
   };
 
   // 기존 함수들
-  const addWaypoint = (x, y) => {
+  const addWaypoint = (x: number, y: number) => {
     const newWaypoint = {
       id: waypoints.length + 1,
       x: x,
@@ -347,7 +412,7 @@ const MissionPlanningSystem = () => {
     setWaypoints([...waypoints, newWaypoint]);
   };
 
-  const getIntelSourceIcon = (source) => {
+  const getIntelSourceIcon = (source: string) => {
     switch(source) {
       case 'SIGINT': return <Radio className="w-4 h-4" />;
       case 'HUMINT': return <Users className="w-4 h-4" />;
@@ -360,7 +425,7 @@ const MissionPlanningSystem = () => {
     }
   };
 
-  const getIntelSourceColor = (source) => {
+  const getIntelSourceColor = (source: string) => {
     switch(source) {
       case 'SIGINT': return 'text-blue-400';
       case 'HUMINT': return 'text-green-400';
@@ -373,7 +438,7 @@ const MissionPlanningSystem = () => {
     }
   };
 
-  const getPriorityColor = (priority) => {
+  const getPriorityColor = (priority: string) => {
     switch(priority) {
       case 'HIGH': return 'text-red-400 bg-red-900/30 border-red-500';
       case 'MEDIUM': return 'text-yellow-400 bg-yellow-900/30 border-yellow-500';
@@ -382,7 +447,7 @@ const MissionPlanningSystem = () => {
     }
   };
 
-  const getThreatLevelColor = (level) => {
+  const getThreatLevelColor = (level: string) => {
     switch(level) {
       case 'CRITICAL': return 'text-red-500';
       case 'HIGH': return 'text-red-400';
@@ -392,7 +457,7 @@ const MissionPlanningSystem = () => {
     }
   };
 
-  const getUnitIcon = (type) => {
+  const getUnitIcon = (type: string) => {
     switch(type) {
       case 'armor': return '🛡️';
       case 'infantry': return '👥';
@@ -405,7 +470,14 @@ const MissionPlanningSystem = () => {
   };
 
   // Military Symbol Component
-  const MilitarySymbol = ({ type, affiliation = "friend", size = 32, label = "" }) => {
+  interface MilitarySymbolProps {
+    type: string;
+    affiliation?: string;
+    size?: number;
+    label?: string;
+  }
+
+  const MilitarySymbol: React.FC<MilitarySymbolProps> = ({ type, affiliation = "friend", size = 32, label = "" }) => {
     const getSymbolPath = () => {
       switch(type) {
         case 'waypoint':
@@ -536,7 +608,7 @@ const MissionPlanningSystem = () => {
               <div className="flex justify-between">
                 <span>LAST UPDATE:</span>
                 <span className="text-cyan-400">
-                  {Math.floor((new Date() - realTimeIntel.lastUpdate) / 1000)}s ago
+                  {Math.floor((new Date().getTime() - realTimeIntel.lastUpdate.getTime()) / 1000)}s ago
                 </span>
               </div>
             </div>
@@ -620,7 +692,7 @@ const MissionPlanningSystem = () => {
                       <span className="font-mono text-white font-bold">{report.source}</span>
                     </div>
                     <span className="text-gray-400 font-mono">
-                      {Math.floor((new Date() - report.timestamp) / 60000)}m
+                      {Math.floor((new Date().getTime() - report.timestamp.getTime()) / 60000)}m
                     </span>
                   </div>
                   <div className="font-mono text-white font-semibold mb-1">{report.title}</div>
@@ -703,7 +775,7 @@ const MissionPlanningSystem = () => {
             ref={mapRef}
             className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 cursor-crosshair"
             onClick={(e) => {
-              if (selectedTool === 'waypoint' && !aiOptimizing) {
+              if (selectedTool === 'waypoint' && !aiOptimizing && mapRef.current) {
                 const rect = mapRef.current.getBoundingClientRect();
                 const x = ((e.clientX - rect.left) / rect.width) * 100;
                 const y = ((e.clientY - rect.top) / rect.height) * 100;
@@ -766,7 +838,7 @@ const MissionPlanningSystem = () => {
                     {threat.source} | {threat.confidence.toFixed(0)}% CONF
                   </div>
                   <div className="text-xs font-mono text-gray-300">
-                    {Math.floor((new Date() - threat.timestamp) / 60000)}min ago
+                    {Math.floor((new Date().getTime() - threat.timestamp.getTime()) / 60000)}min ago
                   </div>
                 </div>
               </div>

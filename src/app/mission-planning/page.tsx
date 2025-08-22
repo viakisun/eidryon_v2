@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Map, MapPin, Navigation, Target, Route, Clock, Settings, Save, Upload, 
@@ -9,9 +10,23 @@ import {
 
 const MissionPlanningSystem = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [selectedAsset, setSelectedAsset] = useState('UAV-001');
+  const [selectedAsset, setSelectedAsset] = useState<string | null>('UAV-001');
   const [missionMode, setMissionMode] = useState('planning'); // planning, review, executing
-  const [waypoints, setWaypoints] = useState([]);
+  interface Waypoint {
+    id: number;
+    x: number;
+    y: number;
+    altitude: number;
+    speed: number;
+    action: string;
+    loiterTime: number;
+    coordinates: {
+      lat: number;
+      lng: number;
+    };
+  }
+
+  const [waypoints, setWaypoints] = useState<Waypoint[]>([]);
   const [currentWaypoint, setCurrentWaypoint] = useState(0);
   const [missionParams, setMissionParams] = useState({
     altitude: 1500,
@@ -35,7 +50,7 @@ const MissionPlanningSystem = () => {
     communications: 'EXCELLENT'
   });
 
-  const mapRef = useRef(null);
+  const mapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -45,7 +60,14 @@ const MissionPlanningSystem = () => {
   }, []);
 
   // Military Symbol Component
-  const MilitarySymbol = ({ type, affiliation = "friend", size = 32, label = "" }) => {
+  interface MilitarySymbolProps {
+    type: string;
+    affiliation?: string;
+    size?: number;
+    label?: string;
+  }
+
+  const MilitarySymbol: React.FC<MilitarySymbolProps> = ({ type, affiliation = "friend", size = 32, label = "" }) => {
     const getSymbolPath = () => {
       switch(type) {
         case 'waypoint':
