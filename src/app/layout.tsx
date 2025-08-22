@@ -27,28 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={geist.className}>
-        <div className="flex h-screen bg-gray-900 text-gray-100">
-          <aside className="w-64 bg-gray-800 p-4 border-r border-gray-700">
-            <h1 className="text-2xl font-bold mb-6 text-green-400">
-              <Link href="/">Eidryon</Link>
-            </h1>
-            <nav>
-              <ul>
-                {navLinks.map((link) => (
-                  <li key={link.href} className="mb-2">
-                    <Link
-                      href={link.href}
-                      className="block p-2 rounded hover:bg-gray-700 transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          </aside>
-          <main className="flex-1 overflow-auto">{children}</main>
-        </div>
+        <main className="bg-gray-900 text-gray-100 min-h-screen">{children}</main>
       </body>
     </html>
   );
