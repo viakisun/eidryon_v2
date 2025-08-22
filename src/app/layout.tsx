@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Geist_Sans } from "next/font/google";
+import { Geist } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 
-const geist = Geist_Sans({ subsets: ["latin"] });
+const geist = Geist({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Eidryon Dashboards",

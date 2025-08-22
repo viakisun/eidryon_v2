@@ -1,14 +1,40 @@
+"use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { Camera, Radio, Battery, AlertTriangle, Target, Navigation, Shield, Activity, MapPin, Clock, Users, Zap, Settings, Eye, Plane, Bell, X, ChevronDown, ChevronUp, Compass, Gauge, Navigation2, Wifi, WifiOff, Play, Pause, Square, RotateCcw, ZoomIn, ZoomOut, Maximize2, Minimize2, Volume2, VolumeX, Monitor, Grid3X3, Crosshair, Sun, Moon } from 'lucide-react';
 
 const IntegratedOperationsDashboard = () => {
+  interface Notification {
+    id: number;
+    type: string;
+    message: string;
+    priority: string;
+    timestamp: Date;
+  }
+
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [selectedAsset, setSelectedAsset] = useState(null);
-  const [notifications, setNotifications] = useState([]);
+  const [selectedAsset, setSelectedAsset] = useState<string | null>(null);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [telemetryExpanded, setTelemetryExpanded] = useState(false);
-  const [videoFeeds, setVideoFeeds] = useState({});
-  const [activeVideoFeed, setActiveVideoFeed] = useState(null);
+
+  interface FeedData {
+    timestamp: string;
+    coordinates: {
+      lat: number;
+      lng: number;
+    };
+    targeting: {
+      crosshairX: number;
+      crosshairY: number;
+      zoom: number;
+      locked: boolean;
+    };
+    quality: number;
+    bitrate: number;
+  }
+
+  const [videoFeeds, setVideoFeeds] = useState<{[key: string]: FeedData}>({});
+  const [activeVideoFeed, setActiveVideoFeed] = useState<string | null>(null);
   const [videoControls, setVideoControls] = useState({
     zoom: 1,
     brightness: 50,
@@ -23,6 +49,8 @@ const IntegratedOperationsDashboard = () => {
   });
   const videoRef = useRef(null);
 
+  // This will be fixed in a future step
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -36,7 +64,7 @@ const IntegratedOperationsDashboard = () => {
   }, []);
 
   // Simulated video feed data
-  const generateVideoFrame = (assetId) => {
+  const generateVideoFrame = (assetId: string): FeedData => {
     const timestamp = new Date().toISOString();
     const frameData = {
       timestamp,
@@ -69,7 +97,17 @@ const IntegratedOperationsDashboard = () => {
   };
 
   // Military Symbol Components
-  const MilitarySymbol = ({ type, affiliation = "friend", status = "present", size = 32, echelon = null, uniqueDesignation = "", additionalInfo = "" }) => {
+  interface MilitarySymbolProps {
+    type: string;
+    affiliation?: string;
+    status?: string;
+    size?: number;
+    echelon?: string | null;
+    uniqueDesignation?: string;
+    additionalInfo?: string;
+  }
+
+  const MilitarySymbol: React.FC<MilitarySymbolProps> = ({ type, affiliation = "friend", status = "present", size = 32, echelon = null, uniqueDesignation = "", additionalInfo = "" }) => {
     const getSymbolPath = () => {
       switch(type) {
         case 'uav-reconnaissance':
@@ -187,7 +225,14 @@ const IntegratedOperationsDashboard = () => {
   };
 
   // Video Feed Component
-  const VideoFeedDisplay = ({ assetId, feedData, isActive, onSelect }) => {
+  interface VideoFeedDisplayProps {
+    assetId: string;
+    feedData: FeedData;
+    isActive: boolean;
+    onSelect: (assetId: string) => void;
+  }
+
+  const VideoFeedDisplay: React.FC<VideoFeedDisplayProps> = ({ assetId, feedData, isActive, onSelect }) => {
     const asset = assets.find(a => a.id === assetId);
     if (!asset || !feedData) return null;
 
@@ -474,11 +519,11 @@ const IntegratedOperationsDashboard = () => {
     setNotifications(prev => [newNotification, ...prev.slice(0, 9)]);
   };
 
-  const dismissNotification = (id) => {
-    setNotifications(prev => prev.filter(n => n.id !== n));
+  const dismissNotification = (id: number) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
   };
 
-  const getNotificationColor = (type) => {
+  const getNotificationColor = (type: string) => {
     switch(type) {
       case 'error': return 'border-red-500 bg-red-900/30 text-red-300';
       case 'warning': return 'border-yellow-500 bg-yellow-900/30 text-yellow-300';
@@ -487,7 +532,7 @@ const IntegratedOperationsDashboard = () => {
     }
   };
 
-  const getFlightModeColor = (mode) => {
+  const getFlightModeColor = (mode: string) => {
     switch(mode) {
       case 'AUTO': return 'text-green-400';
       case 'GUIDED': return 'text-blue-400';
@@ -498,13 +543,13 @@ const IntegratedOperationsDashboard = () => {
     }
   };
 
-  const getSignalStrengthIcon = (strength) => {
+  const getSignalStrengthIcon = (strength: number) => {
     if (strength > -60) return <Wifi className="w-4 h-4 text-green-400" />;
     if (strength > -80) return <Wifi className="w-4 h-4 text-yellow-400" />;
     return <WifiOff className="w-4 h-4 text-red-400" />;
   };
 
-  const getTacticalTaskColor = (task) => {
+  const getTacticalTaskColor = (task: string) => {
     switch(task) {
       case 'RECON': return 'text-blue-400';
       case 'ATK': return 'text-red-400';
@@ -544,7 +589,7 @@ const IntegratedOperationsDashboard = () => {
     }
   ];
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch(status) {
       case 'active': return 'text-green-400';
       case 'standby': return 'text-yellow-400';
@@ -554,7 +599,7 @@ const IntegratedOperationsDashboard = () => {
   };
 
   // Video control functions
-  const handleVideoControl = (action) => {
+  const handleVideoControl = (action: string) => {
     setVideoControls(prev => {
       switch(action) {
         case 'zoom_in':

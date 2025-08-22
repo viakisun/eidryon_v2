@@ -1,10 +1,19 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { Camera, Radio, Battery, AlertTriangle, Target, Navigation, Shield, Activity, MapPin, Clock, Users, Zap, Settings, Eye, Plane, Bell, X, ChevronDown, ChevronUp, Compass, Gauge, Navigation2, Wifi, WifiOff } from 'lucide-react';
 
 const IntegratedOperationsDashboard = () => {
+  interface Notification {
+    id: number;
+    type: string;
+    message: string;
+    priority: string;
+    timestamp: Date;
+  }
+
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [selectedAsset, setSelectedAsset] = useState(null);
-  const [notifications, setNotifications] = useState([]);
+  const [selectedAsset, setSelectedAsset] = useState<string | null>(null);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [telemetryExpanded, setTelemetryExpanded] = useState(false);
 
@@ -20,7 +29,17 @@ const IntegratedOperationsDashboard = () => {
   }, []);
 
   // Military Symbol Components
-  const MilitarySymbol = ({ type, affiliation = "friend", status = "present", size = 32, echelon = null, uniqueDesignation = "", additionalInfo = "" }) => {
+  interface MilitarySymbolProps {
+    type: string;
+    affiliation?: string;
+    status?: string;
+    size?: number;
+    echelon?: string | null;
+    uniqueDesignation?: string;
+    additionalInfo?: string;
+  }
+
+  const MilitarySymbol: React.FC<MilitarySymbolProps> = ({ type, affiliation = "friend", status = "present", size = 32, echelon = null, uniqueDesignation = "", additionalInfo = "" }) => {
     const getSymbolPath = () => {
       switch(type) {
         case 'uav-reconnaissance':
@@ -143,7 +162,14 @@ const IntegratedOperationsDashboard = () => {
   };
 
   // Tactical Graphics Component
-  const TacticalGraphic = ({ type, points, color = "#00FF00", label = "" }) => {
+  interface TacticalGraphicProps {
+    type: string;
+    points: number[];
+    color?: string;
+    label?: string;
+  }
+
+  const TacticalGraphic: React.FC<TacticalGraphicProps> = ({ type, points, color = "#00FF00", label = "" }) => {
     const renderGraphic = () => {
       switch(type) {
         case 'boundary':
@@ -371,11 +397,11 @@ const IntegratedOperationsDashboard = () => {
     setNotifications(prev => [newNotification, ...prev.slice(0, 9)]);
   };
 
-  const dismissNotification = (id) => {
+  const dismissNotification = (id: number) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
   };
 
-  const getNotificationColor = (type) => {
+  const getNotificationColor = (type: string) => {
     switch(type) {
       case 'error': return 'border-red-500 bg-red-900/30 text-red-300';
       case 'warning': return 'border-yellow-500 bg-yellow-900/30 text-yellow-300';
@@ -384,7 +410,7 @@ const IntegratedOperationsDashboard = () => {
     }
   };
 
-  const getFlightModeColor = (mode) => {
+  const getFlightModeColor = (mode: string) => {
     switch(mode) {
       case 'AUTO': return 'text-green-400';
       case 'GUIDED': return 'text-blue-400';
@@ -395,13 +421,13 @@ const IntegratedOperationsDashboard = () => {
     }
   };
 
-  const getSignalStrengthIcon = (strength) => {
+  const getSignalStrengthIcon = (strength: number) => {
     if (strength > -60) return <Wifi className="w-4 h-4 text-green-400" />;
     if (strength > -80) return <Wifi className="w-4 h-4 text-yellow-400" />;
     return <WifiOff className="w-4 h-4 text-red-400" />;
   };
 
-  const getTacticalTaskColor = (task) => {
+  const getTacticalTaskColor = (task: string) => {
     switch(task) {
       case 'RECON': return 'text-blue-400';
       case 'ATK': return 'text-red-400';
@@ -442,7 +468,7 @@ const IntegratedOperationsDashboard = () => {
     }
   ];
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch(status) {
       case 'active': return 'text-green-400';
       case 'standby': return 'text-yellow-400';
@@ -699,6 +725,7 @@ const IntegratedOperationsDashboard = () => {
             <div className="absolute bottom-4 left-4 bg-gray-800/95 rounded-lg p-4 w-96 border border-green-400">
               {(() => {
                 const asset = assets.find(a => a.id === selectedAsset);
+                if (!asset) return null;
                 return (
                   <div className="space-y-4">
                     <div className="border-b border-gray-600 pb-2">
