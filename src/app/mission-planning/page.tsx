@@ -120,8 +120,8 @@ const MissionPlanningSystem = () => {
   };
 
   // Waypoint management
-  const addWaypoint = (x, y) => {
-    const newWaypoint = {
+  const addWaypoint = (x: number, y: number) => {
+    const newWaypoint: Waypoint = {
       id: waypoints.length + 1,
       x: x,
       y: y,
@@ -137,11 +137,11 @@ const MissionPlanningSystem = () => {
     setWaypoints([...waypoints, newWaypoint]);
   };
 
-  const removeWaypoint = (id) => {
+  const removeWaypoint = (id: number) => {
     setWaypoints(waypoints.filter(wp => wp.id !== id));
   };
 
-  const updateWaypoint = (id, updates) => {
+  const updateWaypoint = (id: number, updates: Partial<Waypoint>) => {
     setWaypoints(waypoints.map(wp => 
       wp.id === id ? { ...wp, ...updates } : wp
     ));
@@ -162,13 +162,13 @@ const MissionPlanningSystem = () => {
     const fuel = Math.min(100, duration * 0.8); // 연료 소모율
     
     return { 
-      distance: totalDistance.toFixed(1), 
-      duration: duration.toFixed(0), 
-      fuel: fuel.toFixed(0) 
+      distance: totalDistance,
+      duration: duration,
+      fuel: fuel
     };
   };
 
-  const generateAutoRoute = (type) => {
+  const generateAutoRoute = (type: string) => {
     const basePoints = [];
     switch(type) {
       case 'patrol':
@@ -207,7 +207,7 @@ const MissionPlanningSystem = () => {
     setWaypoints(autoWaypoints);
   };
 
-  const getThreatColor = (level) => {
+  const getThreatColor = (level: string) => {
     switch(level) {
       case 'LOW': return 'text-green-400';
       case 'MODERATE': return 'text-yellow-400';
@@ -300,7 +300,7 @@ const MissionPlanningSystem = () => {
           <div className="bg-gray-700 rounded-lg p-4">
             <div className="text-sm font-medium mb-3 font-mono">ASSET SELECTION</div>
             <select 
-              value={selectedAsset}
+              value={selectedAsset || ''}
               onChange={(e) => setSelectedAsset(e.target.value)}
               className="w-full bg-gray-600 border border-gray-500 rounded px-3 py-2 text-sm font-mono"
             >
@@ -315,6 +315,7 @@ const MissionPlanningSystem = () => {
               <div className="mt-3 text-xs font-mono space-y-1">
                 {(() => {
                   const asset = assets.find(a => a.id === selectedAsset);
+                  if (!asset) return null;
                   return (
                     <>
                       <div className="flex justify-between">
@@ -436,16 +437,16 @@ const MissionPlanningSystem = () => {
                 <div className="space-y-2 text-xs font-mono">
                   <div className="flex justify-between">
                     <span>DISTANCE:</span>
-                    <span className="text-blue-400">{stats.distance} km</span>
+                    <span className="text-blue-400">{stats.distance.toFixed(1)} km</span>
                   </div>
                   <div className="flex justify-between">
                     <span>DURATION:</span>
-                    <span className="text-blue-400">{stats.duration} min</span>
+                    <span className="text-blue-400">{stats.duration.toFixed(0)} min</span>
                   </div>
                   <div className="flex justify-between">
                     <span>FUEL REQ:</span>
-                    <span className={`${parseFloat(stats.fuel) > 80 ? 'text-red-400' : 'text-green-400'}`}>
-                      {stats.fuel}%
+                    <span className={`${stats.fuel > 80 ? 'text-red-400' : 'text-green-400'}`}>
+                      {stats.fuel.toFixed(0)}%
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -515,7 +516,7 @@ const MissionPlanningSystem = () => {
             ref={mapRef}
             className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 cursor-crosshair"
             onClick={(e) => {
-              if (selectedTool === 'waypoint' && missionMode === 'planning') {
+              if (selectedTool === 'waypoint' && missionMode === 'planning' && mapRef.current) {
                 const rect = mapRef.current.getBoundingClientRect();
                 const x = ((e.clientX - rect.left) / rect.width) * 100;
                 const y = ((e.clientY - rect.top) / rect.height) * 100;
@@ -775,14 +776,14 @@ const MissionPlanningSystem = () => {
                       status: waypoints.length >= 2 ? 'pass' : 'fail' 
                     },
                     { 
-                      check: parseFloat(stats.fuel) <= 90, 
+                      check: stats.fuel <= 90,
                       message: 'Fuel consumption OK', 
-                      status: parseFloat(stats.fuel) <= 90 ? 'pass' : 'warn' 
+                      status: stats.fuel <= 90 ? 'pass' : 'warn'
                     },
                     { 
-                      check: parseFloat(stats.duration) <= 120, 
+                      check: stats.duration <= 120,
                       message: 'Mission duration OK', 
-                      status: parseFloat(stats.duration) <= 120 ? 'pass' : 'warn' 
+                      status: stats.duration <= 120 ? 'pass' : 'warn'
                     },
                     { 
                       check: missionParams.altitude >= 500, 

@@ -32,7 +32,17 @@ const MissionPlanningSystem = () => {
   const [currentWaypoint, setCurrentWaypoint] = useState(0);
   const [selectedTool, setSelectedTool] = useState('waypoint');
   const [aiOptimizing, setAiOptimizing] = useState(false);
-  const [optimizationResults, setOptimizationResults] = useState(null);
+  interface OptimizationResult {
+    optimizedWaypoints: Waypoint[];
+    metrics: {
+      convergenceRate: number;
+      generations: number;
+      bestFitness: number;
+      avgFitness: number;
+    };
+  }
+
+  const [optimizationResults, setOptimizationResults] = useState<OptimizationResult | null>(null);
   const [aiSettings, setAiSettings] = useState({
     priority: 'balanced', // fuel, time, safety, stealth
     avoidance: ['threats', 'weather', 'restricted'],
@@ -50,8 +60,15 @@ const MissionPlanningSystem = () => {
     emergencyLanding: true
   });
 
+  interface EnvironmentData {
+    threats: { id: number; x: number; y: number; radius: number; type: string; severity: string; }[];
+    weather: { id: number; x: number; y: number; radius: number; type: string; severity: string; }[];
+    terrain: { id: number; x: number; y: number; radius: number; type: string; elevation: number; }[];
+    restrictedAreas: { id: number; x: number; y: number; radius: number; type: string; priority: string; }[];
+  }
+
   // 위협 및 환경 데이터
-  const [environmentData, setEnvironmentData] = useState({
+  const [environmentData, setEnvironmentData] = useState<EnvironmentData>({
     threats: [
       { id: 1, x: 25, y: 45, radius: 15, type: 'sam', severity: 'high' },
       { id: 2, x: 70, y: 30, radius: 10, type: 'radar', severity: 'medium' },
@@ -95,7 +112,7 @@ const MissionPlanningSystem = () => {
   }, []);
 
   // AI 최적화 알고리즘들
-  const geneticAlgorithm = (waypoints: Waypoint[], constraints: any) => {
+  const geneticAlgorithm = (waypoints: Waypoint[], constraints: EnvironmentData): Promise<OptimizationResult> => {
     console.log('Running Genetic Algorithm...');
     return new Promise((resolve) => {
       let generation = 0;
@@ -108,10 +125,10 @@ const MissionPlanningSystem = () => {
           resolve({
             optimizedWaypoints: bestSolution,
             metrics: {
-              convergenceRate: (bestFitness / 100).toFixed(2),
+              convergenceRate: parseFloat((bestFitness / 100).toFixed(2)),
               generations: generation,
-              bestFitness: bestFitness.toFixed(2),
-              avgFitness: (bestFitness * 0.8).toFixed(2)
+              bestFitness: parseFloat(bestFitness.toFixed(2)),
+              avgFitness: parseFloat((bestFitness * 0.8).toFixed(2))
             }
           });
           return;
@@ -122,7 +139,7 @@ const MissionPlanningSystem = () => {
         const evolved = selection(population);
         const mutated = mutation(evolved);
         
-        const currentBest = mutated.reduce((best, current) => {
+        const currentBest = mutated.reduce((best: Waypoint[], current: Waypoint[]) => {
           const fitness = calculateFitness(current);
           return fitness > calculateFitness(best) ? current : best;
         });
@@ -139,10 +156,10 @@ const MissionPlanningSystem = () => {
         setAiMetrics(prev => ({
           ...prev,
           algorithmPerformance: {
-            convergenceRate: (bestFitness / 100).toFixed(2),
+              convergenceRate: parseFloat((bestFitness / 100).toFixed(2)),
             generations: generation,
-            bestFitness: bestFitness.toFixed(2),
-            avgFitness: (bestFitness * 0.8).toFixed(2)
+              bestFitness: parseFloat(bestFitness.toFixed(2)),
+              avgFitness: parseFloat((bestFitness * 0.8).toFixed(2))
           }
         }));
 
@@ -153,7 +170,7 @@ const MissionPlanningSystem = () => {
     });
   };
 
-  const aStarAlgorithm = (waypoints: Waypoint[], constraints: any) => {
+  const aStarAlgorithm = (waypoints: Waypoint[], constraints: EnvironmentData): Promise<OptimizationResult> => {
     console.log('Running A* Algorithm...');
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -178,15 +195,15 @@ const MissionPlanningSystem = () => {
           metrics: {
             convergenceRate: 0.95,
             generations: 1,
-            bestFitness: calculateFitness(optimized).toFixed(2),
-            avgFitness: calculateFitness(optimized).toFixed(2)
+            bestFitness: parseFloat(calculateFitness(optimized).toFixed(2)),
+            avgFitness: parseFloat(calculateFitness(optimized).toFixed(2))
           }
         });
       }, 2000);
     });
   };
 
-  const neuralNetworkAlgorithm = (waypoints: Waypoint[], constraints: any) => {
+  const neuralNetworkAlgorithm = (waypoints: Waypoint[], constraints: EnvironmentData): Promise<OptimizationResult> => {
     console.log('Running Neural Network...');
     return new Promise((resolve) => {
       let epoch = 0;
@@ -200,8 +217,8 @@ const MissionPlanningSystem = () => {
             metrics: {
               convergenceRate: 0.93,
               generations: epoch,
-              bestFitness: calculateFitness(bestSolution).toFixed(2),
-              avgFitness: (calculateFitness(bestSolution) * 0.85).toFixed(2)
+              bestFitness: parseFloat(calculateFitness(bestSolution).toFixed(2)),
+              avgFitness: parseFloat((calculateFitness(bestSolution) * 0.85).toFixed(2))
             }
           });
           return;
@@ -219,10 +236,10 @@ const MissionPlanningSystem = () => {
         setAiMetrics(prev => ({
           ...prev,
           algorithmPerformance: {
-            convergenceRate: (epoch / maxEpochs).toFixed(2),
+              convergenceRate: parseFloat((epoch / maxEpochs).toFixed(2)),
             generations: epoch,
-            bestFitness: calculateFitness(bestSolution).toFixed(2),
-            avgFitness: (calculateFitness(bestSolution) * 0.85).toFixed(2)
+              bestFitness: parseFloat(calculateFitness(bestSolution).toFixed(2)),
+              avgFitness: parseFloat((calculateFitness(bestSolution) * 0.85).toFixed(2))
           }
         }));
 
@@ -234,7 +251,7 @@ const MissionPlanningSystem = () => {
   };
 
   // 유틸리티 함수들
-  const calculateFitness = (waypoints) => {
+  const calculateFitness = (waypoints: Waypoint[]) => {
     if (waypoints.length < 2) return 0;
     
     let score = 100;
@@ -284,7 +301,7 @@ const MissionPlanningSystem = () => {
     return Math.max(0, Math.min(100, score));
   };
 
-  const generatePopulation = (baseWaypoints, size) => {
+  const generatePopulation = (baseWaypoints: Waypoint[], size: number) => {
     const population = [];
     for (let i = 0; i < size; i++) {
       const individual = baseWaypoints.map(wp => ({
@@ -297,11 +314,11 @@ const MissionPlanningSystem = () => {
     return population;
   };
 
-  const selection = (population) => {
+  const selection = (population: Waypoint[][]) => {
     return population.sort((a, b) => calculateFitness(b) - calculateFitness(a)).slice(0, population.length / 2);
   };
 
-  const mutation = (population) => {
+  const mutation = (population: Waypoint[][]) => {
     return population.map(individual => 
       individual.map(wp => ({
         ...wp,
@@ -311,14 +328,14 @@ const MissionPlanningSystem = () => {
     );
   };
 
-  const findNearbyThreats = (x, y, radius = 20) => {
+  const findNearbyThreats = (x: number, y: number, radius = 20) => {
     return environmentData.threats.filter(threat => {
       const distance = Math.sqrt((x - threat.x)**2 + (y - threat.y)**2);
       return distance < radius;
     });
   };
 
-  const calculateAvoidanceVector = (threats) => {
+  const calculateAvoidanceVector = (threats: { id: number; x: number; y: number; radius: number; type: string; severity: string; }[]) => {
     let avoidX = 0, avoidY = 0;
     threats.forEach(threat => {
       const strength = threat.severity === 'high' ? 10 : threat.severity === 'medium' ? 5 : 2;
@@ -338,7 +355,17 @@ const MissionPlanningSystem = () => {
     setOptimizationResults(null);
 
     try {
-      let result;
+      interface OptimizationResult {
+        optimizedWaypoints: Waypoint[];
+        metrics: {
+          convergenceRate: number;
+          generations: number;
+          bestFitness: number;
+          avgFitness: number;
+        };
+      }
+
+      let result: OptimizationResult;
       switch(aiSettings.algorithm) {
         case 'genetic':
           result = await geneticAlgorithm(waypoints, environmentData);
@@ -372,8 +399,8 @@ const MissionPlanningSystem = () => {
       setAiMetrics(prev => ({
         ...prev,
         optimizationScore: calculateFitness(optimizedWaypoints),
-        fuelEfficiency: Math.max(0, 100 - (parseFloat(optimizedStats.fuel) / parseFloat(originalStats.fuel) * 100 - 100)),
-        timeEfficiency: Math.max(0, 100 - (parseFloat(optimizedStats.duration) / parseFloat(originalStats.duration) * 100 - 100)),
+        fuelEfficiency: Math.max(0, 100 - (optimizedStats.fuel / originalStats.fuel * 100 - 100)),
+        timeEfficiency: Math.max(0, 100 - (optimizedStats.duration / originalStats.duration * 100 - 100)),
         safetyScore: 100 - (findThreatsInPath(optimizedWaypoints).length * 10),
         stealthScore: calculateStealthScore(optimizedWaypoints),
         threatAvoidance: calculateThreatAvoidance(optimizedWaypoints)
@@ -386,7 +413,7 @@ const MissionPlanningSystem = () => {
     }
   };
 
-  const calculateStealthScore = (waypoints) => {
+  const calculateStealthScore = (waypoints: Waypoint[]) => {
     let score = 100;
     waypoints.forEach(wp => {
       environmentData.threats.forEach(threat => {
@@ -401,13 +428,13 @@ const MissionPlanningSystem = () => {
     return Math.max(0, score);
   };
 
-  const calculateThreatAvoidance = (waypoints) => {
+  const calculateThreatAvoidance = (waypoints: Waypoint[]) => {
     const threatsInPath = findThreatsInPath(waypoints);
     return Math.max(0, 100 - (threatsInPath.length * 15));
   };
 
-  const findThreatsInPath = (waypoints) => {
-    const threats = [];
+  const findThreatsInPath = (waypoints: Waypoint[]) => {
+    const threats: { id: number; x: number; y: number; radius: number; type: string; severity: string; }[] = [];
     waypoints.forEach(wp => {
       environmentData.threats.forEach(threat => {
         const distance = Math.sqrt((wp.x - threat.x)**2 + (wp.y - threat.y)**2);
@@ -420,7 +447,7 @@ const MissionPlanningSystem = () => {
   };
 
   // 기존 함수들 (간소화)
-  const addWaypoint = (x, y) => {
+  const addWaypoint = (x: number, y: number) => {
     const newWaypoint = {
       id: waypoints.length + 1,
       x: x,
@@ -437,11 +464,11 @@ const MissionPlanningSystem = () => {
     setWaypoints([...waypoints, newWaypoint]);
   };
 
-  const removeWaypoint = (id) => {
+  const removeWaypoint = (id: number) => {
     setWaypoints(waypoints.filter(wp => wp.id !== id));
   };
 
-  const calculateMissionStats = (wps = waypoints) => {
+  const calculateMissionStats = (wps: Waypoint[] = waypoints) => {
     if (wps.length < 2) return { distance: 0, duration: 0, fuel: 0 };
     
     let totalDistance = 0;
@@ -456,13 +483,13 @@ const MissionPlanningSystem = () => {
     const fuel = Math.min(100, duration * 0.8);
     
     return { 
-      distance: totalDistance.toFixed(1), 
-      duration: duration.toFixed(0), 
-      fuel: fuel.toFixed(0) 
+      distance: totalDistance,
+      duration: duration,
+      fuel: fuel
     };
   };
 
-  const generateAutoRoute = (type) => {
+  const generateAutoRoute = (type: string) => {
     const basePoints = [];
     switch(type) {
       case 'patrol':
@@ -501,7 +528,7 @@ const MissionPlanningSystem = () => {
     setWaypoints(autoWaypoints);
   };
 
-  const getThreatColor = (level) => {
+  const getThreatColor = (level: string) => {
     switch(level) {
       case 'LOW': return 'text-green-400';
       case 'MODERATE': return 'text-yellow-400';
@@ -512,7 +539,7 @@ const MissionPlanningSystem = () => {
     }
   };
 
-  const getEnvironmentColor = (type, severity) => {
+  const getEnvironmentColor = (type: string, severity: string) => {
     if (type === 'sam' || type === 'aa_gun') return severity === 'high' ? '#FF4444' : severity === 'medium' ? '#FF8844' : '#FFAA44';
     if (type === 'radar') return '#FF44FF';
     if (type === 'storm') return '#4444FF';
@@ -779,7 +806,7 @@ const MissionPlanningSystem = () => {
           <div className="bg-gray-700 rounded-lg p-4">
             <div className="text-sm font-medium mb-3 font-mono">ASSET SELECTION</div>
             <select 
-              value={selectedAsset}
+              value={selectedAsset || ''}
               onChange={(e) => setSelectedAsset(e.target.value)}
               className="w-full bg-gray-600 border border-gray-500 rounded px-3 py-2 text-sm font-mono"
             >
@@ -857,7 +884,7 @@ const MissionPlanningSystem = () => {
                   </div>
                   <div className="flex justify-between">
                     <span>FUEL REQ:</span>
-                    <span className={`${parseFloat(stats.fuel) > 80 ? 'text-red-400' : 'text-green-400'}`}>
+                    <span className={`${stats.fuel > 80 ? 'text-red-400' : 'text-green-400'}`}>
                       {stats.fuel}%
                     </span>
                   </div>
@@ -907,7 +934,7 @@ const MissionPlanningSystem = () => {
             ref={mapRef}
             className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 cursor-crosshair"
             onClick={(e) => {
-              if (selectedTool === 'waypoint' && missionMode === 'planning' && !aiOptimizing) {
+              if (selectedTool === 'waypoint' && missionMode === 'planning' && !aiOptimizing && mapRef.current) {
                 const rect = mapRef.current.getBoundingClientRect();
                 const x = ((e.clientX - rect.left) / rect.width) * 100;
                 const y = ((e.clientY - rect.top) / rect.height) * 100;
