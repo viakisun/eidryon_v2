@@ -1,14 +1,33 @@
-import React, { useState, useEffect, useRef } from 'react';
+'use client';
+
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
-  Shield, Star, AlertTriangle, Users, Target, Radio, Battery, Clock, 
-  TrendingUp, TrendingDown, Activity, Zap, Eye, Camera, Plane, 
-  CheckCircle, XCircle, AlertCircle, Pause, Play, RotateCw,
-  Satellite, Globe, Radar, Signal, Database, Network, Brain,
-  MapPin, Navigation, Flag, Home, Crosshair, Award, Crown,
-  Monitor, Headphones, MessageCircle, Bell, Filter, Settings,
-  BarChart3, PieChart, LineChart, Calendar, FileText, Download,
-  Volume2, VolumeX, Maximize2, Minimize2, RefreshCw, Layers
+  Shield, AlertTriangle, Activity, Eye, Plane,
+  CheckCircle, XCircle, AlertCircle,
+  Satellite, Globe, Radar, Database, Network, Brain,
+  Crown,
+  Bell,
+  Volume2, VolumeX, Maximize2, RefreshCw, Layers
 } from 'lucide-react';
+
+
+const generateRandomEvent = () => {
+  const events = [
+    'UAV-002 encountered unexpected weather pattern',
+    'New enemy contact detected via SIGINT',
+    'Mission OVERWATCH BRAVO requesting priority support',
+    'Friendly forces movement reported in AO GUARDIAN',
+    'Communications relay established with forward units',
+    'UAV-007 completing final approach to target area',
+    'Intelligence update: Enemy activity decreased in sector 4'
+  ];
+  return events[Math.floor(Math.random() * events.length)];
+};
+
+type Status = 'ACTIVE' | 'STANDBY' | 'MAINTENANCE' | 'OFFLINE';
+type Priority = 'HIGH' | 'MEDIUM' | 'LOW';
+type EventType = 'SUCCESS' | 'ALERT' | 'WARNING' | 'INFO';
+type ThreatLevel = 'LOW' | 'MODERATE' | 'HIGH' | 'CRITICAL';
 
 const CommanderView = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -16,10 +35,20 @@ const CommanderView = () => {
   const [alertsCount, setAlertsCount] = useState(3);
   const [commandMode, setCommandMode] = useState('NORMAL'); // NORMAL, ALERT, EMERGENCY
   const [audioEnabled, setAudioEnabled] = useState(true);
-  const [fullscreenPanel, setFullscreenPanel] = useState(null);
 
   // 실시간 작전 데이터
-  const [operationalData, setOperationalData] = useState({
+  const [operationalData, setOperationalData] = useState<{
+    totalAssets: number;
+    activeAssets: number;
+    standbyAssets: number;
+    maintenanceAssets: number;
+    activeMissions: number;
+    completedMissions: number;
+    threatLevel: ThreatLevel;
+    airspaceStatus: string;
+    weatherCondition: string;
+    overallReadiness: number;
+  }>({
     totalAssets: 8,
     activeAssets: 6,
     standbyAssets: 1,
@@ -98,17 +127,7 @@ const CommanderView = () => {
     }
   });
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-      // 실시간 데이터 업데이트 시뮬레이션
-      updateOperationalData();
-    }, 5000); // 5초마다 업데이트
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const updateOperationalData = () => {
+  const updateOperationalData = useCallback(() => {
     // 자산 배터리 및 위치 업데이트
     setAssetStatus(prev => 
       prev.map(asset => {
@@ -147,59 +166,57 @@ const CommanderView = () => {
       };
       setRecentEvents(prev => [newEvent, ...prev.slice(0, 9)]);
     }
-  };
+  }, []);
 
-  const generateRandomEvent = () => {
-    const events = [
-      'UAV-002 encountered unexpected weather pattern',
-      'New enemy contact detected via SIGINT',
-      'Mission OVERWATCH BRAVO requesting priority support',
-      'Friendly forces movement reported in AO GUARDIAN',
-      'Communications relay established with forward units',
-      'UAV-007 completing final approach to target area',
-      'Intelligence update: Enemy activity decreased in sector 4'
-    ];
-    return events[Math.floor(Math.random() * events.length)];
-  };
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+      // 실시간 데이터 업데이트 시뮬레이션
+      updateOperationalData();
+    }, 5000); // 5초마다 업데이트
 
-  const getStatusColor = (status) => {
+    return () => clearInterval(timer);
+  }, [updateOperationalData]);
+
+
+const getStatusColor = (status: Status) => {
     switch(status) {
-      case 'ACTIVE': return 'text-green-400 bg-green-400/20';
-      case 'STANDBY': return 'text-yellow-400 bg-yellow-400/20';
-      case 'MAINTENANCE': return 'text-red-400 bg-red-400/20';
-      case 'OFFLINE': return 'text-gray-400 bg-gray-400/20';
-      default: return 'text-gray-400 bg-gray-400/20';
+        case 'ACTIVE': return 'text-green-400 bg-green-400/20';
+        case 'STANDBY': return 'text-yellow-400 bg-yellow-400/20';
+        case 'MAINTENANCE': return 'text-red-400 bg-red-400/20';
+        case 'OFFLINE': return 'text-gray-400 bg-gray-400/20';
+        default: return 'text-gray-400 bg-gray-400/20';
     }
-  };
+};
 
-  const getPriorityColor = (priority) => {
+const getPriorityColor = (priority: Priority) => {
     switch(priority) {
-      case 'HIGH': return 'text-red-400 border-red-500 bg-red-900/30';
-      case 'MEDIUM': return 'text-yellow-400 border-yellow-500 bg-yellow-900/30';
-      case 'LOW': return 'text-green-400 border-green-500 bg-green-900/30';
-      default: return 'text-gray-400 border-gray-500 bg-gray-900/30';
+        case 'HIGH': return 'text-red-400 border-red-500 bg-red-900/30';
+        case 'MEDIUM': return 'text-yellow-400 border-yellow-500 bg-yellow-900/30';
+        case 'LOW': return 'text-green-400 border-green-500 bg-green-900/30';
+        default: return 'text-gray-400 border-gray-500 bg-gray-900/30';
     }
-  };
+};
 
-  const getEventIcon = (type) => {
+const getEventIcon = (type: EventType) => {
     switch(type) {
-      case 'SUCCESS': return <CheckCircle className="w-4 h-4 text-green-400" />;
-      case 'ALERT': return <AlertTriangle className="w-4 h-4 text-red-400" />;
-      case 'WARNING': return <AlertCircle className="w-4 h-4 text-yellow-400" />;
-      case 'INFO': return <Eye className="w-4 h-4 text-blue-400" />;
-      default: return <Activity className="w-4 h-4 text-gray-400" />;
+        case 'SUCCESS': return <CheckCircle className="w-4 h-4 text-green-400" />;
+        case 'ALERT': return <AlertTriangle className="w-4 h-4 text-red-400" />;
+        case 'WARNING': return <AlertCircle className="w-4 h-4 text-yellow-400" />;
+        case 'INFO': return <Eye className="w-4 h-4 text-blue-400" />;
+        default: return <Activity className="w-4 h-4 text-gray-400" />;
     }
-  };
+};
 
-  const getThreatLevelColor = (level) => {
+const getThreatLevelColor = (level: ThreatLevel) => {
     switch(level) {
-      case 'LOW': return 'text-green-400';
-      case 'MODERATE': return 'text-yellow-400';
-      case 'HIGH': return 'text-orange-400';
-      case 'CRITICAL': return 'text-red-400';
-      default: return 'text-gray-400';
+        case 'LOW': return 'text-green-400';
+        case 'MODERATE': return 'text-yellow-400';
+        case 'HIGH': return 'text-orange-400';
+        case 'CRITICAL': return 'text-red-400';
+        default: return 'text-gray-400';
     }
-  };
+};
 
   const approveAllMissions = () => {
     console.log('All active missions approved by Commander');

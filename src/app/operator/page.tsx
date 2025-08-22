@@ -1,15 +1,19 @@
-import React, { useState, useEffect, useRef } from 'react';
+'use client';
+
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
-  Gamepad2, Camera, Radio, Battery, Crosshair, ZoomIn, ZoomOut, RotateCcw,
-  Play, Pause, Square, Volume2, VolumeX, Maximize2, Minimize2, Settings,
-  Navigation, Compass, Gauge, Thermometer, Wind, AlertTriangle, CheckCircle,
-  Eye, Target, Home, MapPin, Clock, Activity, Signal, Wifi, WifiOff,
-  ChevronUp, ChevronDown, ChevronLeft, ChevronRight, RotateCw, Move,
-  Plane, Zap, Shield, AlertCircle, Info, RefreshCw, Monitor, Grid3X3,
-  Sun, Moon, Focus, Aperture,   Mic, MicOff, Lock, Unlock, Power, PowerOff, ArrowUp, ArrowDown, ArrowLeft, ArrowRight,
-  CornerDownLeft, CornerDownRight, CornerUpLeft, CornerUpRight, Circle,
-  Triangle, Hexagon, Users, MessageCircle, Bell
+  Gamepad2, Camera, Battery, Crosshair, ZoomIn, ZoomOut,
+  Pause, Square,
+  Navigation, Thermometer,
+  Home, Clock, Wifi, WifiOff,
+  ChevronUp, ChevronDown, ArrowUp, ArrowDown, ArrowLeft, ArrowRight,
+  Circle,
+  Monitor, Grid3X3,
+  Sun, Moon, Focus, Lock, Unlock,
+  Target, Activity, Eye,
 } from 'lucide-react';
+
+type NotificationType = 'error' | 'warning' | 'success' | 'info';
 
 const OperatorView = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -86,16 +90,7 @@ const OperatorView = () => {
     }
   });
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-      updateTelemetry();
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const updateTelemetry = () => {
+  const updateTelemetry = useCallback(() => {
     if (controlMode === 'MANUAL') {
       // 수동 조작 중일 때 조작값 반영
       setDroneData(prev => ({
@@ -136,7 +131,16 @@ const OperatorView = () => {
       signal: Math.max(-90, Math.min(-50, prev.signal + (Math.random() - 0.5) * 5)),
       temperature: Math.max(40, Math.min(80, prev.temperature + (Math.random() - 0.5) * 2))
     }));
-  };
+  }, [controlMode, flightControls, selectedDrone]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+      updateTelemetry();
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [updateTelemetry]);
 
   // 비행 제어 함수들
   const handleArmDisarm = () => {
@@ -199,7 +203,7 @@ const OperatorView = () => {
     });
   };
 
-  const addNotification = (message, type) => {
+  const addNotification = (message: string, type: NotificationType) => {
     const notification = {
       id: Date.now(),
       message,
@@ -209,13 +213,13 @@ const OperatorView = () => {
     setNotifications(prev => [notification, ...prev.slice(0, 4)]);
   };
 
-  const getSignalIcon = (strength) => {
+  const getSignalIcon = (strength: number) => {
     if (strength > -60) return <Wifi className="w-4 h-4 text-green-400" />;
     if (strength > -80) return <Wifi className="w-4 h-4 text-yellow-400" />;
     return <WifiOff className="w-4 h-4 text-red-400" />;
   };
 
-  const getNotificationColor = (type) => {
+  const getNotificationColor = (type: NotificationType) => {
     switch(type) {
       case 'error': return 'border-red-500 bg-red-900/30 text-red-300';
       case 'warning': return 'border-yellow-500 bg-yellow-900/30 text-yellow-300';

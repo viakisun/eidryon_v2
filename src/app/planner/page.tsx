@@ -1,21 +1,22 @@
+'use client';
+
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Map, MapPin, Navigation, Target, Route, Clock, Settings, Save, Upload, 
-  Play, Pause, Square, RotateCcw, Plus, Minus, X, Check, AlertTriangle,
-  Eye, Camera, Radio, Plane, Shield, Crosshair, Zap, Flag, Home,
-  ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Calculator,
-  Compass, Gauge, Wind, Thermometer, CloudRain, Sun, Brain, Cpu,
-  TrendingUp, BarChart3, Sparkles, RefreshCw, Activity, Users,
-  Globe, Radar, Satellite, Wifi, Signal, Database, Network,
-  Monitor, Headphones, MessageCircle, Bell, Filter, Search, Layers,
-  Edit3, Copy, Trash2, ZoomIn, ZoomOut,
-  Grid3X3, Ruler, Scissors, Move, MousePointer, Hand, Maximize2,
-  FileText, Download, Folder, FolderOpen, Share2, Archive, Book,
-  Calendar, Timer, FastForward, Rewind, SkipForward,
-  SkipBack, Repeat, Shuffle, Hash, Percent, DollarSign, Fuel,
-  Anchor, Bookmark, Tag, Star, Award, Trophy, Medal, Crown,
-  Lock, Unlock, Key, UserCheck, UserX, PersonStanding
+  MapPin, Target, Clock, Save, Upload,
+  Play, X,
+  Eye, Camera, Home,
+  Users,
+  Radar,
+  MessageCircle,
+  Edit3, Copy,
+  Download, FolderOpen, Share2, Archive, Book,
 } from 'lucide-react';
+
+type Status = 'DRAFT' | 'PLANNING' | 'APPROVED' | 'ACTIVE' | 'COMPLETED';
+type Priority = 'HIGH' | 'MEDIUM' | 'LOW' | 'CRITICAL';
+type Difficulty = 'EASY' | 'MEDIUM' | 'HARD';
+type WaypointType = 'normal' | 'target' | 'recon' | 'surveillance' | 'home';
+
 
 const PlannerView = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -345,7 +346,7 @@ const PlannerView = () => {
     return total;
   };
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: Status) => {
     switch(status) {
       case 'DRAFT': return 'text-gray-400 bg-gray-400/20';
       case 'PLANNING': return 'text-yellow-400 bg-yellow-400/20';
@@ -356,7 +357,7 @@ const PlannerView = () => {
     }
   };
 
-  const getPriorityColor = (priority) => {
+  const getPriorityColor = (priority: Priority) => {
     switch(priority) {
       case 'HIGH': return 'text-red-400 border-red-500';
       case 'MEDIUM': return 'text-yellow-400 border-yellow-500';
@@ -365,7 +366,7 @@ const PlannerView = () => {
     }
   };
 
-  const getDifficultyColor = (difficulty) => {
+  const getDifficultyColor = (difficulty: Difficulty) => {
     switch(difficulty) {
       case 'EASY': return 'text-green-400';
       case 'MEDIUM': return 'text-yellow-400';
@@ -374,7 +375,7 @@ const PlannerView = () => {
     }
   };
 
-  const getWaypointIcon = (type) => {
+  const getWaypointIcon = (type: WaypointType) => {
     switch(type) {
       case 'normal': return <MapPin className="w-4 h-4 text-blue-400" />;
       case 'target': return <Target className="w-4 h-4 text-red-400" />;
@@ -682,7 +683,7 @@ const PlannerView = () => {
                 {/* Threat Areas */}
                 <div className="absolute top-32 left-60 w-16 h-16 bg-red-500/30 border-2 border-red-400 rounded-full">
                   <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                    <Target className="w-6 h-6 text-red-400" />
+                    <Radar className="w-6 h-6 text-red-400" />
                   </div>
                 </div>
                 <div className="absolute bottom-48 right-48 w-20 h-20 bg-orange-500/30 border-2 border-orange-400 rounded-full">
