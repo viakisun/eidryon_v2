@@ -556,7 +556,7 @@ const AnalystView = () => {
                       {report.classification}
                     </div>
                     <div className="text-xs font-mono text-gray-400">
-                      {Math.floor((new Date() - report.timestamp) / 60000)}m ago
+                      {Math.floor((new Date().getTime() - report.timestamp.getTime()) / 60000)}m ago
                     </div>
                   </div>
                 </div>
