@@ -190,7 +190,7 @@ const CommanderView = () => {
 
     // 새로운 이벤트 추가 (20% 확률)
     if (Math.random() < 0.2) {
-      const newEvent = {
+      const newEvent: RecentEvent = {
         id: Date.now(),
         time: new Date().toLocaleTimeString(),
         type: Math.random() > 0.7 ? 'ALERT' : Math.random() > 0.5 ? 'WARNING' : 'INFO',
