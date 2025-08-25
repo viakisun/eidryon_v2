@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useEffect } from 'react';
-import { Camera, Shield, Clock, Bell, X, Square, ZoomIn, ZoomOut, Volume2, VolumeX, Monitor, Grid3X3, Crosshair, Sun, Moon } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Camera, Shield, Clock, Bell, X, Square, ZoomIn, ZoomOut, Volume2, VolumeX, Monitor, Grid3X3, Crosshair, Sun, Moon, Wifi, WifiOff } from 'lucide-react';
 
 const IntegratedOperationsDashboard = () => {
   interface Notification {
@@ -47,21 +47,140 @@ const IntegratedOperationsDashboard = () => {
     isMuted: false
   });
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-      updateTelemetryData();
-      updateVideoFeeds();
-      if (Math.random() < 0.08) {
-        generateRandomNotification();
+  const [assets, setAssets] = useState([
+    {
+      id: 'UAV-001',
+      type: 'uav-reconnaissance',
+      militaryDesignation: 'RQ-11B',
+      name: 'Ghost Recon',
+      status: 'active',
+      affiliation: 'friend',
+      echelon: 'squad',
+      battery: 87,
+      position: { x: 45, y: 35 },
+      mission: 'PATROL-ALPHA',
+      tacticalTask: 'RECON',
+      hasCamera: true,
+      telemetry: {
+        gps: { lat: 37.2431, lng: 127.0766, accuracy: 3.2, satellites: 12 },
+        altitude: 1245.6,
+        yaw: 156.8,
+        pitch: -2.1,
+        roll: 1.3,
+        speed: { ground: 45.2, air: 47.8, vertical: 0.3 },
+        distance: { home: 2847.5, waypoint: 156.2 },
+        flightMode: 'AUTO',
+        signal: { strength: -72, quality: 85 },
+        engine: { temp: 68.5, rpm: 2450, fuel: 87 }
       }
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [updateVideoFeeds]);
+    },
+    {
+      id: 'UAV-002',
+      type: 'uav-attack',
+      militaryDesignation: 'MQ-9',
+      name: 'Thunder Strike',
+      status: 'standby',
+      affiliation: 'friend',
+      echelon: 'platoon',
+      battery: 92,
+      position: { x: 65, y: 55 },
+      mission: 'STANDBY',
+      tacticalTask: 'ATK',
+      hasCamera: true,
+      telemetry: {
+        gps: { lat: 37.2398, lng: 127.0823, accuracy: 2.8, satellites: 14 },
+        altitude: 0,
+        yaw: 270.0,
+        pitch: 0,
+        roll: 0,
+        speed: { ground: 0, air: 0, vertical: 0 },
+        distance: { home: 0, waypoint: 0 },
+        flightMode: 'STANDBY',
+        signal: { strength: -65, quality: 92 },
+        engine: { temp: 35.2, rpm: 0, fuel: 92 }
+      }
+    },
+    {
+      id: 'UAV-003',
+      type: 'uav-surveillance',
+      militaryDesignation: 'RQ-4B',
+      name: 'Eagle Eye',
+      status: 'active',
+      affiliation: 'friend',
+      echelon: 'company',
+      battery: 73,
+      position: { x: 30, y: 60 },
+      mission: 'OVERWATCH-BRAVO',
+      tacticalTask: 'SURV',
+      hasCamera: true,
+      telemetry: {
+        gps: { lat: 37.2465, lng: 127.0712, accuracy: 4.1, satellites: 11 },
+        altitude: 2385.3,
+        yaw: 89.2,
+        pitch: -15.7,
+        roll: -0.8,
+        speed: { ground: 12.5, air: 15.2, vertical: -0.1 },
+        distance: { home: 4521.8, waypoint: 892.3 },
+        flightMode: 'LOITER',
+        signal: { strength: -78, quality: 78 },
+        engine: { temp: 72.1, rpm: 1850, fuel: 73 }
+      }
+    },
+    {
+      id: 'UAV-004',
+      type: 'uav-communication',
+      militaryDesignation: 'MQ-8C',
+      name: 'Link Master',
+      status: 'maintenance',
+      affiliation: 'friend',
+      echelon: 'section',
+      battery: 15,
+      position: { x: 50, y: 25 },
+      mission: 'OFFLINE',
+      tacticalTask: 'COMM',
+      hasCamera: false,
+      telemetry: {
+        gps: { lat: 37.2412, lng: 127.0789, accuracy: 0, satellites: 0 },
+        altitude: 0,
+        yaw: 0,
+        pitch: 0,
+        roll: 0,
+        speed: { ground: 0, air: 0, vertical: 0 },
+        distance: { home: 0, waypoint: 0 },
+        flightMode: 'OFFLINE',
+        signal: { strength: -95, quality: 15 },
+        engine: { temp: 25.0, rpm: 0, fuel: 15 }
+      }
+    },
+    {
+      id: 'UAV-005',
+      type: 'uav-reconnaissance',
+      militaryDesignation: 'RQ-7B',
+      name: 'Shadow Walker',
+      status: 'active',
+      affiliation: 'friend',
+      echelon: 'squad',
+      battery: 64,
+      position: { x: 75, y: 40 },
+      mission: 'RECON-CHARLIE',
+      tacticalTask: 'RECON',
+      hasCamera: true,
+      telemetry: {
+        gps: { lat: 37.2387, lng: 127.0856, accuracy: 3.5, satellites: 13 },
+        altitude: 1876.2,
+        yaw: 45.6,
+        pitch: -8.3,
+        roll: 2.1,
+        speed: { ground: 38.7, air: 41.2, vertical: 1.8 },
+        distance: { home: 3156.7, waypoint: 234.8 },
+        flightMode: 'GUIDED',
+        signal: { strength: -74, quality: 81 },
+        engine: { temp: 65.8, rpm: 2200, fuel: 64 }
+      }
+    }
+  ]);
 
-  // Simulated video feed data
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const generateVideoFrame = React.useCallback((assetId: string): FeedData => {
+  const generateVideoFrame = useCallback((assetId: string): FeedData => {
     const timestamp = new Date().toISOString();
     const frameData = {
       timestamp,
@@ -81,7 +200,7 @@ const IntegratedOperationsDashboard = () => {
     return frameData;
   }, [videoControls.zoom]);
 
-  const updateVideoFeeds = React.useCallback(() => {
+  const updateVideoFeeds = useCallback(() => {
     setVideoFeeds(prev => {
       const newFeeds = { ...prev };
       assets.forEach(asset => {
@@ -92,6 +211,64 @@ const IntegratedOperationsDashboard = () => {
       return newFeeds;
     });
   }, [assets, generateVideoFrame]);
+
+  const updateTelemetryData = useCallback(() => {
+    setAssets(prevAssets =>
+      prevAssets.map(asset => {
+        if (asset.status === 'active') {
+          return {
+            ...asset,
+            telemetry: {
+              ...asset.telemetry,
+              yaw: (asset.telemetry.yaw + (Math.random() - 0.5) * 2) % 360,
+              speed: {
+                ...asset.telemetry.speed,
+                ground: Math.max(0, asset.telemetry.speed.ground + (Math.random() - 0.5) * 5),
+                air: Math.max(0, asset.telemetry.speed.air + (Math.random() - 0.5) * 5)
+              },
+              signal: {
+                ...asset.telemetry.signal,
+                strength: Math.max(-100, Math.min(-50, asset.telemetry.signal.strength + (Math.random() - 0.5) * 5)),
+                quality: Math.max(0, Math.min(100, asset.telemetry.signal.quality + (Math.random() - 0.5) * 10))
+              }
+            }
+          };
+        }
+        return asset;
+      })
+    );
+  }, []);
+
+  const generateRandomNotification = useCallback(() => {
+    const notificationTypes = [
+      { type: 'warning', message: '▲ UAV-003 배터리 임계치 접근', priority: 'medium' },
+      { type: 'info', message: '📹 UAV-001 영상 품질 개선됨', priority: 'low' },
+      { type: 'error', message: '✗ UAV-004 영상 피드 손실', priority: 'high' },
+      { type: 'success', message: '✓ UAV-002 타겟 락온 완료', priority: 'low' },
+      { type: 'warning', message: '⚠ UAV-005 열화상 모드 전환', priority: 'medium' }
+    ];
+
+    const randomNotification = notificationTypes[Math.floor(Math.random() * notificationTypes.length)];
+    const newNotification: Notification = {
+      id: Date.now(),
+      ...randomNotification,
+      timestamp: new Date()
+    };
+
+    setNotifications(prev => [newNotification, ...prev.slice(0, 9)]);
+  }, []);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+      updateTelemetryData();
+      updateVideoFeeds();
+      if (Math.random() < 0.08) {
+        generateRandomNotification();
+      }
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [updateTelemetryData, updateVideoFeeds, generateRandomNotification]);
 
   // Military Symbol Components
   interface MilitarySymbolProps {
@@ -235,9 +412,9 @@ const IntegratedOperationsDashboard = () => {
 
     return (
       <div 
-        className={`relative bg-black rounded-lg overflow-hidden cursor-pointer transition-all ${
+        className={\`relative bg-black rounded-lg overflow-hidden cursor-pointer transition-all \${
           isActive ? 'ring-2 ring-green-400' : 'hover:ring-1 hover:ring-gray-400'
-        }`}
+        }\`}
         onClick={() => onSelect(assetId)}
       >
         {/* Simulated Video Feed */}
@@ -267,8 +444,8 @@ const IntegratedOperationsDashboard = () => {
             <div 
               className="absolute w-12 h-12 border-2 border-red-400 rounded-full opacity-80"
               style={{
-                left: `${feedData.targeting.crosshairX}%`,
-                top: `${feedData.targeting.crosshairY}%`,
+                left: \`\${feedData.targeting.crosshairX}%\`,
+                top: \`\${feedData.targeting.crosshairY}%\`,
                 transform: 'translate(-50%, -50%)'
               }}
             >
@@ -336,186 +513,6 @@ const IntegratedOperationsDashboard = () => {
     );
   };
 
-  // 드론 자산 데이터
-  const [assets, setAssets] = useState([
-    { 
-      id: 'UAV-001', 
-      type: 'uav-reconnaissance',
-      militaryDesignation: 'RQ-11B',
-      name: 'Ghost Recon', 
-      status: 'active',
-      affiliation: 'friend',
-      echelon: 'squad',
-      battery: 87, 
-      position: { x: 45, y: 35 }, 
-      mission: 'PATROL-ALPHA',
-      tacticalTask: 'RECON',
-      hasCamera: true,
-      telemetry: {
-        gps: { lat: 37.2431, lng: 127.0766, accuracy: 3.2, satellites: 12 },
-        altitude: 1245.6,
-        yaw: 156.8,
-        pitch: -2.1,
-        roll: 1.3,
-        speed: { ground: 45.2, air: 47.8, vertical: 0.3 },
-        distance: { home: 2847.5, waypoint: 156.2 },
-        flightMode: 'AUTO',
-        signal: { strength: -72, quality: 85 },
-        engine: { temp: 68.5, rpm: 2450, fuel: 87 }
-      }
-    },
-    { 
-      id: 'UAV-002', 
-      type: 'uav-attack',
-      militaryDesignation: 'MQ-9',
-      name: 'Thunder Strike', 
-      status: 'standby',
-      affiliation: 'friend',
-      echelon: 'platoon',
-      battery: 92, 
-      position: { x: 65, y: 55 }, 
-      mission: 'STANDBY',
-      tacticalTask: 'ATK',
-      hasCamera: true,
-      telemetry: {
-        gps: { lat: 37.2398, lng: 127.0823, accuracy: 2.8, satellites: 14 },
-        altitude: 0,
-        yaw: 270.0,
-        pitch: 0,
-        roll: 0,
-        speed: { ground: 0, air: 0, vertical: 0 },
-        distance: { home: 0, waypoint: 0 },
-        flightMode: 'STANDBY',
-        signal: { strength: -65, quality: 92 },
-        engine: { temp: 35.2, rpm: 0, fuel: 92 }
-      }
-    },
-    { 
-      id: 'UAV-003', 
-      type: 'uav-surveillance',
-      militaryDesignation: 'RQ-4B',
-      name: 'Eagle Eye', 
-      status: 'active',
-      affiliation: 'friend',
-      echelon: 'company',
-      battery: 73, 
-      position: { x: 30, y: 60 }, 
-      mission: 'OVERWATCH-BRAVO',
-      tacticalTask: 'SURV',
-      hasCamera: true,
-      telemetry: {
-        gps: { lat: 37.2465, lng: 127.0712, accuracy: 4.1, satellites: 11 },
-        altitude: 2385.3,
-        yaw: 89.2,
-        pitch: -15.7,
-        roll: -0.8,
-        speed: { ground: 12.5, air: 15.2, vertical: -0.1 },
-        distance: { home: 4521.8, waypoint: 892.3 },
-        flightMode: 'LOITER',
-        signal: { strength: -78, quality: 78 },
-        engine: { temp: 72.1, rpm: 1850, fuel: 73 }
-      }
-    },
-    { 
-      id: 'UAV-004', 
-      type: 'uav-communication',
-      militaryDesignation: 'MQ-8C',
-      name: 'Link Master', 
-      status: 'maintenance',
-      affiliation: 'friend',
-      echelon: 'section',
-      battery: 15, 
-      position: { x: 50, y: 25 }, 
-      mission: 'OFFLINE',
-      tacticalTask: 'COMM',
-      hasCamera: false,
-      telemetry: {
-        gps: { lat: 37.2412, lng: 127.0789, accuracy: 0, satellites: 0 },
-        altitude: 0,
-        yaw: 0,
-        pitch: 0,
-        roll: 0,
-        speed: { ground: 0, air: 0, vertical: 0 },
-        distance: { home: 0, waypoint: 0 },
-        flightMode: 'OFFLINE',
-        signal: { strength: -95, quality: 15 },
-        engine: { temp: 25.0, rpm: 0, fuel: 15 }
-      }
-    },
-    { 
-      id: 'UAV-005', 
-      type: 'uav-reconnaissance',
-      militaryDesignation: 'RQ-7B',
-      name: 'Shadow Walker', 
-      status: 'active',
-      affiliation: 'friend',
-      echelon: 'squad',
-      battery: 64, 
-      position: { x: 75, y: 40 }, 
-      mission: 'RECON-CHARLIE',
-      tacticalTask: 'RECON',
-      hasCamera: true,
-      telemetry: {
-        gps: { lat: 37.2387, lng: 127.0856, accuracy: 3.5, satellites: 13 },
-        altitude: 1876.2,
-        yaw: 45.6,
-        pitch: -8.3,
-        roll: 2.1,
-        speed: { ground: 38.7, air: 41.2, vertical: 1.8 },
-        distance: { home: 3156.7, waypoint: 234.8 },
-        flightMode: 'GUIDED',
-        signal: { strength: -74, quality: 81 },
-        engine: { temp: 65.8, rpm: 2200, fuel: 64 }
-      }
-    }
-  ]);
-
-  const updateTelemetryData = () => {
-    setAssets(prevAssets => 
-      prevAssets.map(asset => {
-        if (asset.status === 'active') {
-          return {
-            ...asset,
-            telemetry: {
-              ...asset.telemetry,
-              yaw: (asset.telemetry.yaw + (Math.random() - 0.5) * 2) % 360,
-              speed: {
-                ...asset.telemetry.speed,
-                ground: Math.max(0, asset.telemetry.speed.ground + (Math.random() - 0.5) * 5),
-                air: Math.max(0, asset.telemetry.speed.air + (Math.random() - 0.5) * 5)
-              },
-              signal: {
-                ...asset.telemetry.signal,
-                strength: Math.max(-100, Math.min(-50, asset.telemetry.signal.strength + (Math.random() - 0.5) * 5)),
-                quality: Math.max(0, Math.min(100, asset.telemetry.signal.quality + (Math.random() - 0.5) * 10))
-              }
-            }
-          };
-        }
-        return asset;
-      })
-    );
-  };
-
-  const generateRandomNotification = () => {
-    const notificationTypes = [
-      { type: 'warning', message: '▲ UAV-003 배터리 임계치 접근', priority: 'medium' },
-      { type: 'info', message: '📹 UAV-001 영상 품질 개선됨', priority: 'low' },
-      { type: 'error', message: '✗ UAV-004 영상 피드 손실', priority: 'high' },
-      { type: 'success', message: '✓ UAV-002 타겟 락온 완료', priority: 'low' },
-      { type: 'warning', message: '⚠ UAV-005 열화상 모드 전환', priority: 'medium' }
-    ];
-    
-    const randomNotification = notificationTypes[Math.floor(Math.random() * notificationTypes.length)];
-    const newNotification = {
-      id: Date.now(),
-      ...randomNotification,
-      timestamp: new Date()
-    };
-    
-    setNotifications(prev => [newNotification, ...prev.slice(0, 9)]);
-  };
-
   const dismissNotification = (id: number) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
   };
@@ -536,6 +533,15 @@ const IntegratedOperationsDashboard = () => {
       case 'LOITER': return 'text-yellow-400';
       case 'STANDBY': return 'text-gray-400';
       case 'OFFLINE': return 'text-red-400';
+      default: return 'text-gray-400';
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch(status) {
+      case 'active': return 'text-green-400';
+      case 'standby': return 'text-yellow-400';
+      case 'maintenance': return 'text-red-400';
       default: return 'text-gray-400';
     }
   };
@@ -610,7 +616,7 @@ const IntegratedOperationsDashboard = () => {
                   <div className="p-4 text-gray-400 text-center font-mono">NO ACTIVE ALERTS</div>
                 ) : (
                   notifications.map(notification => (
-                    <div key={notification.id} className={`p-3 border-b border-gray-700 last:border-b-0 ${getNotificationColor(notification.type)} border-l-4`}>
+                    <div key={notification.id} className={\`p-3 border-b border-gray-700 last:border-b-0 \${getNotificationColor(notification.type)} border-l-4\`}>
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <div className="text-sm font-mono">{notification.message}</div>
@@ -692,36 +698,36 @@ const IntegratedOperationsDashboard = () => {
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <button 
                   onClick={() => handleVideoControl('toggle_recording')}
-                  className={`p-2 rounded font-mono flex items-center justify-center space-x-1 ${
+                  className={\`p-2 rounded font-mono flex items-center justify-center space-x-1 \${
                     videoControls.isRecording ? 'bg-red-600 text-white' : 'bg-gray-600 hover:bg-gray-500'
-                  }`}
+                  }\`}
                 >
                   <Square className="w-3 h-3" />
                   <span>REC</span>
                 </button>
                 <button 
                   onClick={() => handleVideoControl('toggle_thermal')}
-                  className={`p-2 rounded font-mono flex items-center justify-center space-x-1 ${
+                  className={\`p-2 rounded font-mono flex items-center justify-center space-x-1 \${
                     videoControls.thermalMode ? 'bg-orange-600 text-white' : 'bg-gray-600 hover:bg-gray-500'
-                  }`}
+                  }\`}
                 >
                   {videoControls.thermalMode ? <Sun className="w-3 h-3" /> : <Moon className="w-3 h-3" />}
                   <span>THERM</span>
                 </button>
                 <button 
                   onClick={() => handleVideoControl('toggle_crosshair')}
-                  className={`p-2 rounded font-mono flex items-center justify-center space-x-1 ${
+                  className={\`p-2 rounded font-mono flex items-center justify-center space-x-1 \${
                     videoControls.showCrosshair ? 'bg-green-600 text-white' : 'bg-gray-600 hover:bg-gray-500'
-                  }`}
+                  }\`}
                 >
                   <Crosshair className="w-3 h-3" />
                   <span>CROSS</span>
                 </button>
                 <button 
                   onClick={() => handleVideoControl('toggle_grid')}
-                  className={`p-2 rounded font-mono flex items-center justify-center space-x-1 ${
+                  className={\`p-2 rounded font-mono flex items-center justify-center space-x-1 \${
                     videoControls.showGrid ? 'bg-blue-600 text-white' : 'bg-gray-600 hover:bg-gray-500'
-                  }`}
+                  }\`}
                 >
                   <Grid3X3 className="w-3 h-3" />
                   <span>GRID</span>
@@ -799,8 +805,8 @@ const IntegratedOperationsDashboard = () => {
                   <div 
                     className="absolute w-24 h-24 border-4 border-red-400 rounded-full opacity-80"
                     style={{
-                      left: `${videoFeeds[activeVideoFeed].targeting.crosshairX}%`,
-                      top: `${videoFeeds[activeVideoFeed].targeting.crosshairY}%`,
+                      left: \`\${videoFeeds[activeVideoFeed].targeting.crosshairX}%\`,
+                      top: \`\${videoFeeds[activeVideoFeed].targeting.crosshairY}%\`,
                       transform: 'translate(-50%, -50%)'
                     }}
                   >
@@ -890,12 +896,12 @@ const IntegratedOperationsDashboard = () => {
             {assets.map(asset => (
               <div
                 key={asset.id}
-                className={`absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer ${
+                className={\`absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer \${
                   selectedAsset === asset.id ? 'scale-125' : 'hover:scale-110'
-                } transition-transform`}
+                } transition-transform\`}
                 style={{
-                  left: `${asset.position.x}%`,
-                  top: `${asset.position.y}%`
+                  left: \`\${asset.position.x}%\`,
+                  top: \`\${asset.position.y}%\`
                 }}
                 onClick={() => setSelectedAsset(selectedAsset === asset.id ? null : asset.id)}
               >
@@ -906,9 +912,9 @@ const IntegratedOperationsDashboard = () => {
                   size={20}
                 />
                 {asset.hasCamera && asset.status === 'active' && (
-                  <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${
+                  <div className={\`absolute -top-1 -right-1 w-3 h-3 rounded-full \${
                     activeVideoFeed === asset.id ? 'bg-red-500 animate-pulse' : 'bg-blue-500'
-                  }`}></div>
+                  }\`}></div>
                 )}
               </div>
             ))}
@@ -920,9 +926,9 @@ const IntegratedOperationsDashboard = () => {
             {assets.map(asset => (
               <div
                 key={asset.id}
-                className={`bg-gray-700 rounded-lg p-2 cursor-pointer transition-all border ${
+                className={\`bg-gray-700 rounded-lg p-2 cursor-pointer transition-all border \${
                   selectedAsset === asset.id ? 'ring-1 ring-green-400 border-green-400' : 'border-transparent hover:bg-gray-650'
-                }`}
+                }\`}
                 onClick={() => {
                   setSelectedAsset(selectedAsset === asset.id ? null : asset.id);
                   if (asset.hasCamera && asset.status === 'active') {
@@ -944,14 +950,14 @@ const IntegratedOperationsDashboard = () => {
                   </div>
                   <div className="flex items-center space-x-1">
                     {asset.hasCamera && (
-                      <Camera className={`w-3 h-3 ${
+                      <Camera className={\`w-3 h-3 \${
                         activeVideoFeed === asset.id ? 'text-red-400' : 'text-blue-400'
-                      }`} />
+                      }\`} />
                     )}
-                    <div className={`w-2 h-2 rounded-full ${
+                    <div className={\`w-2 h-2 rounded-full \${
                       asset.status === 'active' ? 'bg-green-400' :
                       asset.status === 'standby' ? 'bg-yellow-400' : 'bg-red-400'
-                    }`}></div>
+                    }\`}></div>
                   </div>
                 </div>
                 
