@@ -145,8 +145,20 @@ To configure this:
 3.  In the left sidebar, click on **Pages**.
 4.  Under "Build and deployment", change the **Source** from "Deploy from a branch" to **GitHub Actions**.
 
-### Base Path
+### Deployment Configuration
 
-The `next.config.ts` file includes a `basePath` option. If you set this value, the application will be served from a subdirectory. For example, if you set `basePath: '/my-app'`, the application will be accessible at `http://<your-domain>/my-app`.
+For a successful deployment to GitHub Pages, two settings in `next.config.ts` must be correctly configured.
 
-When deploying to GitHub Pages, the `basePath` should typically be set to the name of your repository (e.g., `basePath: '/eidryon-dashboards'`). If you change this value, make sure to update the deployment workflow and any internal links accordingly.
+- **`basePath`**: This should be set to the name of your repository, prefixed with a slash. For this repository, it is `'/eidryon_v2'`.
+- **`assetPrefix`**: This should be set to the same value as `basePath`.
+
+Example:
+```javascript
+const nextConfig = {
+  output: 'export',
+  basePath: '/eidryon_v2',
+  assetPrefix: '/eidryon_v2',
+};
+```
+
+These settings ensure that both page navigation and static asset links (CSS, JS, fonts) work correctly when the site is served from a subdirectory.
