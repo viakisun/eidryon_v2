@@ -4,6 +4,9 @@ const nextConfig: NextConfig = {
   output: 'export',
   basePath: '/eidryon_v2',
   assetPrefix: '/eidryon_v2',
+  images: {
+    unoptimized: true,
+  },
   /* config options here */
 };
 
