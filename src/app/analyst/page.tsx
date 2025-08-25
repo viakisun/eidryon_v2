@@ -52,6 +52,16 @@ type AnalyticsData = {
   topSources: TopSource[];
 };
 
+type Threat = {
+  id: string;
+  type: string;
+  threat_level: ThreatLevel;
+  location: { lat: number; lng: number };
+  confidence: number;
+  range: number;
+  description: string;
+};
+
 
 const AnalystView = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -116,7 +126,7 @@ const AnalystView = () => {
   ]);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [threatAssessment, setThreatAssessment] = useState([
+  const [threatAssessment, setThreatAssessment] = useState<Threat[]>([
     {
       id: 'THR-001',
       type: 'SAM_SITE',
