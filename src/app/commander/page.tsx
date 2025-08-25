@@ -29,6 +29,35 @@ type Priority = 'HIGH' | 'MEDIUM' | 'LOW';
 type EventType = 'SUCCESS' | 'ALERT' | 'WARNING' | 'INFO';
 type ThreatLevel = 'LOW' | 'MODERATE' | 'HIGH' | 'CRITICAL';
 
+type MissionStatus = {
+  id: string;
+  name: string;
+  status: Status;
+  progress: number;
+  assets: string[];
+  priority: Priority;
+  eta: string;
+  commander: string;
+};
+
+type AssetStatus = {
+  id: string;
+  name: string;
+  status: Status;
+  mission: string;
+  battery: number;
+  altitude: number;
+  location: string;
+};
+
+type RecentEvent = {
+  id: number;
+  time: string;
+  type: EventType;
+  message: string;
+  priority: Priority;
+};
+
 const CommanderView = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -64,7 +93,7 @@ const CommanderView = () => {
     overallReadiness: 85
   });
 
-  const [missionStatus, setMissionStatus] = useState([
+  const [missionStatus, setMissionStatus] = useState<MissionStatus[]>([
     {
       id: 'MSN-001',
       name: 'PATROL ALPHA',
@@ -97,7 +126,7 @@ const CommanderView = () => {
     }
   ]);
 
-  const [assetStatus, setAssetStatus] = useState([
+  const [assetStatus, setAssetStatus] = useState<AssetStatus[]>([
     { id: 'UAV-001', name: 'Ghost Recon', status: 'ACTIVE', mission: 'PATROL ALPHA', battery: 87, altitude: 1245, location: 'GRID-4521' },
     { id: 'UAV-002', name: 'Thunder Strike', status: 'ACTIVE', mission: 'OVERWATCH BRAVO', battery: 92, altitude: 2100, location: 'GRID-3892' },
     { id: 'UAV-003', name: 'Eagle Eye', status: 'ACTIVE', mission: 'PATROL ALPHA', battery: 73, altitude: 2385, location: 'GRID-4633' },
@@ -108,7 +137,7 @@ const CommanderView = () => {
     { id: 'UAV-008', name: 'Sky Guardian', status: 'ACTIVE', mission: 'ISR DELTA', battery: 82, altitude: 2200, location: 'GRID-5889' }
   ]);
 
-  const [recentEvents, setRecentEvents] = useState([
+  const [recentEvents, setRecentEvents] = useState<RecentEvent[]>([
     { id: 1, time: '13:42:15', type: 'SUCCESS', message: 'UAV-005 reached waypoint CHARLIE-3', priority: 'LOW' },
     { id: 2, time: '13:41:03', type: 'ALERT', message: 'New threat detected in AO GUARDIAN', priority: 'HIGH' },
     { id: 3, time: '13:39:48', type: 'INFO', message: 'Mission PATROL ALPHA 65% complete', priority: 'MEDIUM' },
