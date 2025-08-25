@@ -128,3 +128,25 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 -   **/mission-planning**: A dashboard for general mission planning.
 
 You can navigate between these dashboards using the sidebar navigation.
+
+---
+
+## 6. Deployment
+
+This site is deployed to GitHub Pages using a GitHub Actions workflow.
+
+### GitHub Pages Configuration
+
+The deployment is handled by the `.github/workflows/deploy.yml` workflow. For the deployment to work correctly, the GitHub Pages settings in the repository must be configured to use **GitHub Actions** as the source.
+
+To configure this:
+1.  Go to your repository on GitHub.
+2.  Click on the **Settings** tab.
+3.  In the left sidebar, click on **Pages**.
+4.  Under "Build and deployment", change the **Source** from "Deploy from a branch" to **GitHub Actions**.
+
+### Base Path
+
+The `next.config.ts` file includes a `basePath` option. If you set this value, the application will be served from a subdirectory. For example, if you set `basePath: '/my-app'`, the application will be accessible at `http://<your-domain>/my-app`.
+
+When deploying to GitHub Pages, the `basePath` should typically be set to the name of your repository (e.g., `basePath: '/eidryon-dashboards'`). If you change this value, make sure to update the deployment workflow and any internal links accordingly.
