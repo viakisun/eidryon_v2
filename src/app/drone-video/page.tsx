@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useEffect, useRef } from 'react';
-import { Camera, Radio, Battery, AlertTriangle, Target, Navigation, Shield, Activity, MapPin, Clock, Users, Zap, Settings, Eye, Plane, Bell, X, ChevronDown, ChevronUp, Compass, Gauge, Navigation2, Wifi, WifiOff, Play, Pause, Square, RotateCcw, ZoomIn, ZoomOut, Maximize2, Minimize2, Volume2, VolumeX, Monitor, Grid3X3, Crosshair, Sun, Moon } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Camera, Shield, Clock, Bell, X, Square, ZoomIn, ZoomOut, Volume2, VolumeX, Monitor, Grid3X3, Crosshair, Sun, Moon } from 'lucide-react';
 
 const IntegratedOperationsDashboard = () => {
   interface Notification {
@@ -15,7 +15,6 @@ const IntegratedOperationsDashboard = () => {
   const [selectedAsset, setSelectedAsset] = useState<string | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [telemetryExpanded, setTelemetryExpanded] = useState(false);
 
   interface FeedData {
     timestamp: string;
@@ -47,10 +46,7 @@ const IntegratedOperationsDashboard = () => {
     volume: 80,
     isMuted: false
   });
-  const videoRef = useRef(null);
 
-  // This will be fixed in a future step
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -61,10 +57,11 @@ const IntegratedOperationsDashboard = () => {
       }
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [updateVideoFeeds]);
 
   // Simulated video feed data
-  const generateVideoFrame = (assetId: string): FeedData => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const generateVideoFrame = React.useCallback((assetId: string): FeedData => {
     const timestamp = new Date().toISOString();
     const frameData = {
       timestamp,
@@ -82,9 +79,9 @@ const IntegratedOperationsDashboard = () => {
       bitrate: 2048 + Math.random() * 512
     };
     return frameData;
-  };
+  }, [videoControls.zoom]);
 
-  const updateVideoFeeds = () => {
+  const updateVideoFeeds = React.useCallback(() => {
     setVideoFeeds(prev => {
       const newFeeds = { ...prev };
       assets.forEach(asset => {
@@ -94,7 +91,7 @@ const IntegratedOperationsDashboard = () => {
       });
       return newFeeds;
     });
-  };
+  }, [assets, generateVideoFrame]);
 
   // Military Symbol Components
   interface MilitarySymbolProps {
@@ -539,61 +536,6 @@ const IntegratedOperationsDashboard = () => {
       case 'LOITER': return 'text-yellow-400';
       case 'STANDBY': return 'text-gray-400';
       case 'OFFLINE': return 'text-red-400';
-      default: return 'text-gray-400';
-    }
-  };
-
-  const getSignalStrengthIcon = (strength: number) => {
-    if (strength > -60) return <Wifi className="w-4 h-4 text-green-400" />;
-    if (strength > -80) return <Wifi className="w-4 h-4 text-yellow-400" />;
-    return <WifiOff className="w-4 h-4 text-red-400" />;
-  };
-
-  const getTacticalTaskColor = (task: string) => {
-    switch(task) {
-      case 'RECON': return 'text-blue-400';
-      case 'ATK': return 'text-red-400';
-      case 'SURV': return 'text-green-400';
-      case 'COMM': return 'text-yellow-400';
-      default: return 'text-gray-400';
-    }
-  };
-
-  const operationAreas = [
-    { 
-      id: 'AO-MAIN', 
-      type: 'AO', 
-      name: 'AO GUARDIAN', 
-      color: '#00FF00', 
-      coords: '37.24N 127.08E',
-      designation: 'AO',
-      commander: '1-501 IN'
-    },
-    { 
-      id: 'TAO-1', 
-      type: 'TAO', 
-      name: 'TAO THUNDER', 
-      color: '#FFFF00', 
-      coords: '37.23N 127.09E',
-      designation: 'TAO',
-      commander: 'A/1-501'
-    },
-    { 
-      id: 'EZ-1', 
-      type: 'EZ', 
-      name: 'EZ LIGHTNING', 
-      color: '#FF0000', 
-      coords: '37.25N 127.07E',
-      designation: 'EZ',
-      commander: 'FIRES'
-    }
-  ];
-
-  const getStatusColor = (status: string) => {
-    switch(status) {
-      case 'active': return 'text-green-400';
-      case 'standby': return 'text-yellow-400';
-      case 'maintenance': return 'text-red-400';
       default: return 'text-gray-400';
     }
   };

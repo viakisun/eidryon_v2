@@ -1,22 +1,9 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Map, MapPin, Navigation, Target, Route, Clock, Settings, Save, Upload, 
-  Play, Pause, Square, RotateCcw, Plus, Minus, X, Check, AlertTriangle,
-  Eye, Camera, Radio, Plane, Shield, Crosshair, Zap, Flag, Home,
-  ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Calculator,
-  Compass, Gauge, Wind, Thermometer, CloudRain, Sun, Brain, Cpu,
-  TrendingUp, BarChart3, Sparkles, RefreshCw, Zap as Lightning,
-  Activity, Users, Globe, Radar, Satellite, Wifi, Signal, TowerControl as Tower,
-  AlertCircle, Info, CheckCircle, XCircle, Rss, Database, Network,
-  Monitor, Headphones, MessageSquare, Bell, Filter, Search, Layers,
-  MapIcon, Crosshair as TargetIcon, Users as EnemyIcon, Truck
-} from 'lucide-react';
+import { MapPin, Route, Clock, Crosshair, Brain, RefreshCw, Users, Globe, Radar, Satellite, Radio, Camera, Info, Rss, Shield, Target as TargetIcon, Database } from 'lucide-react';
 
 const MissionPlanningSystem = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [selectedAsset, setSelectedAsset] = useState<string | null>('UAV-001');
-  const [missionMode, setMissionMode] = useState('planning');
   interface Waypoint {
     id: number;
     x: number;
@@ -82,7 +69,6 @@ const MissionPlanningSystem = () => {
   }
 
   const [waypoints, setWaypoints] = useState<Waypoint[]>([]);
-  const [currentWaypoint, setCurrentWaypoint] = useState(0);
   const [selectedTool, setSelectedTool] = useState('waypoint');
   const [aiOptimizing, setAiOptimizing] = useState(false);
   const [realTimeIntel, setRealTimeIntel] = useState({
@@ -112,15 +98,6 @@ const MissionPlanningSystem = () => {
   });
 
   const [autoReplan, setAutoReplan] = useState(true);
-  const [intelFilters, setIntelFilters] = useState({
-    threats: true,
-    enemies: true,
-    friendlies: true,
-    neutral: true,
-    confirmed: true,
-    probable: true,
-    possible: true
-  });
 
   const mapRef = useRef<HTMLDivElement>(null);
 
@@ -134,7 +111,7 @@ const MissionPlanningSystem = () => {
     }, 2000); // 2초마다 인텔 업데이트
 
     return () => clearInterval(timer);
-  }, [realTimeIntel.enabled]);
+  }, [realTimeIntel.enabled, updateSituationalAwareness]);
 
   // 실시간 인텔리전스 업데이트
   const updateRealTimeIntelligence = () => {
@@ -248,7 +225,7 @@ const MissionPlanningSystem = () => {
     }));
   };
 
-  const updateSituationalAwareness = () => {
+  const updateSituationalAwareness = React.useCallback(() => {
     const highThreats = liveThreats.filter(t => t.threat_level === 'HIGH').length;
     const mediumThreats = liveThreats.filter(t => t.threat_level === 'MEDIUM').length;
     
@@ -267,7 +244,7 @@ const MissionPlanningSystem = () => {
       commsStatus: realTimeIntel.sources.sigint.status === 'active' ? 'SECURE' : 'COMPROMISED',
       airspace: threatLevel === 'CRITICAL' ? 'DENIED' : threatLevel === 'HIGH' ? 'CONTESTED' : 'PERMISSIVE'
     }));
-  };
+  }, [liveThreats, enemyUnits, realTimeIntel.sources.sigint.status]);
 
   // 초기 전장 상황 설정
   useEffect(() => {
@@ -322,9 +299,9 @@ const MissionPlanningSystem = () => {
         }
       }
     }
-  }, [liveThreats, enemyUnits, autoReplan]);
+  }, [liveThreats, enemyUnits, autoReplan, aiOptimizing, checkPathThreats, runAutoReplan, waypoints.length]);
 
-  const checkPathThreats = () => {
+  const checkPathThreats = React.useCallback(() => {
     let high = 0, medium = 0, critical = 0;
     
     waypoints.forEach(wp => {
@@ -339,9 +316,9 @@ const MissionPlanningSystem = () => {
     });
     
     return { critical, high, medium };
-  };
+  }, [waypoints, liveThreats]);
 
-  const runAutoReplan = async () => {
+  const runAutoReplan = React.useCallback(async () => {
     setAiOptimizing(true);
     // 실시간 위협 정보를 AI에 반영하여 재계획
     setTimeout(() => {
@@ -392,7 +369,7 @@ const MissionPlanningSystem = () => {
       
       setAiOptimizing(false);
     }, 3000);
-  };
+  }, [waypoints, liveThreats, setWaypoints, setIntelReports]);
 
   // 기존 함수들
   const addWaypoint = (x: number, y: number) => {
@@ -472,12 +449,11 @@ const MissionPlanningSystem = () => {
   // Military Symbol Component
   interface MilitarySymbolProps {
     type: string;
-    affiliation?: string;
     size?: number;
     label?: string;
   }
 
-  const MilitarySymbol: React.FC<MilitarySymbolProps> = ({ type, affiliation = "friend", size = 32, label = "" }) => {
+  const MilitarySymbol: React.FC<MilitarySymbolProps> = ({ type, size = 32, label = "" }) => {
     const getSymbolPath = () => {
       switch(type) {
         case 'waypoint':
@@ -927,7 +903,7 @@ const MissionPlanningSystem = () => {
             )}
 
             {/* Waypoints */}
-            {waypoints.map((waypoint, index) => (
+            {waypoints.map((waypoint) => (
               <div
                 key={waypoint.id}
                 className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer group"

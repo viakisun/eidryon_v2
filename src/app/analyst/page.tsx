@@ -46,6 +46,7 @@ const AnalystView = () => {
   const [analysisMode, setAnalysisMode] = useState('realtime');
   const [selectedReport, setSelectedReport] = useState<IntelReport | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [activeAnalysis, setActiveAnalysis] = useState<unknown[]>([]);
 
   const [intelReports, setIntelReports] = useState<IntelReport[]>([
@@ -99,6 +100,7 @@ const AnalystView = () => {
     }
   ]);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [threatAssessment, setThreatAssessment] = useState([
     {
       id: 'THR-001',
@@ -120,6 +122,7 @@ const AnalystView = () => {
     }
   ]);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [analyticsData, setAnalyticsData] = useState({
     totalReports: 156,
     newReports24h: 24,
@@ -135,6 +138,7 @@ const AnalystView = () => {
     ]
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [collaborators, setCollaborators] = useState([
     { id: 1, name: 'CPT Johnson', role: 'COMMANDER', status: 'available' },
     { id: 2, name: 'SGT Miller', role: 'OPERATOR', status: 'busy' },

@@ -1,11 +1,10 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Map, MapPin, Navigation, Target, Route, Clock, Settings, Save, Upload, 
-  Play, Pause, Square, RotateCcw, Plus, Minus, X, Check, AlertTriangle,
-  Eye, Camera, Radio, Plane, Shield, Crosshair, Zap, Flag, Home,
-  ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Calculator,
-  Compass, Gauge, Wind, Thermometer, CloudRain, Sun
+  MapPin, Target, Route, Clock, Save, Upload,
+  X, Check, AlertTriangle,
+  Crosshair,
+  Wind, Thermometer, CloudRain, Sun
 } from 'lucide-react';
 
 const MissionPlanningSystem = () => {
@@ -27,6 +26,7 @@ const MissionPlanningSystem = () => {
   }
 
   const [waypoints, setWaypoints] = useState<Waypoint[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [currentWaypoint, setCurrentWaypoint] = useState(0);
   const [missionParams, setMissionParams] = useState({
     altitude: 1500,
@@ -37,12 +37,14 @@ const MissionPlanningSystem = () => {
     emergencyLanding: true
   });
   const [selectedTool, setSelectedTool] = useState('waypoint'); // waypoint, area, route, target
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [missionTemplates, setMissionTemplates] = useState([
     { id: 1, name: 'AREA RECONNAISSANCE', type: 'recon', duration: '45min', waypoints: 8 },
     { id: 2, name: 'PATROL ROUTE', type: 'patrol', duration: '60min', waypoints: 6 },
     { id: 3, name: 'TARGET SURVEILLANCE', type: 'surveillance', duration: '120min', waypoints: 4 },
     { id: 4, name: 'CONVOY ESCORT', type: 'escort', duration: '90min', waypoints: 12 }
   ]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [threatAssessment, setThreatAssessment] = useState({
     airDefense: 'LOW',
     weather: 'GOOD',
@@ -67,7 +69,7 @@ const MissionPlanningSystem = () => {
     label?: string;
   }
 
-  const MilitarySymbol: React.FC<MilitarySymbolProps> = ({ type, affiliation = "friend", size = 32, label = "" }) => {
+  const MilitarySymbol: React.FC<MilitarySymbolProps> = ({ type, size = 32, label = "" }) => {
     const getSymbolPath = () => {
       switch(type) {
         case 'waypoint':
@@ -139,12 +141,6 @@ const MissionPlanningSystem = () => {
 
   const removeWaypoint = (id: number) => {
     setWaypoints(waypoints.filter(wp => wp.id !== id));
-  };
-
-  const updateWaypoint = (id: number, updates: Partial<Waypoint>) => {
-    setWaypoints(waypoints.map(wp => 
-      wp.id === id ? { ...wp, ...updates } : wp
-    ));
   };
 
   const calculateMissionStats = () => {
@@ -576,7 +572,7 @@ const MissionPlanningSystem = () => {
             )}
 
             {/* Waypoints */}
-            {waypoints.map((waypoint, index) => (
+            {waypoints.map((waypoint) => (
               <div
                 key={waypoint.id}
                 className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer group"
@@ -661,11 +657,11 @@ const MissionPlanningSystem = () => {
             </div>
           ) : (
             <div className="space-y-2 max-h-96 overflow-y-auto">
-              {waypoints.map((waypoint, index) => (
+              {waypoints.map((waypoint) => (
                 <div
                   key={waypoint.id}
                   className={`bg-gray-700 rounded-lg p-3 transition-all ${
-                    missionMode === 'executing' && index === currentWaypoint 
+                    missionMode === 'executing' && waypoint.id === currentWaypoint
                       ? 'ring-2 ring-green-400 bg-gray-600' 
                       : 'hover:bg-gray-650'
                   }`}
@@ -677,7 +673,7 @@ const MissionPlanningSystem = () => {
                         WAYPOINT {waypoint.id}
                       </span>
                     </div>
-                    {missionMode === 'executing' && index === currentWaypoint && (
+                    {missionMode === 'executing' && waypoint.id === currentWaypoint && (
                       <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                     )}
                   </div>
@@ -792,8 +788,8 @@ const MissionPlanningSystem = () => {
                     }
                   ];
 
-                  return validations.map((validation, index) => (
-                    <div key={index} className="flex items-center space-x-2 text-xs font-mono">
+                  return validations.map((validation) => (
+                    <div key={validation.message} className="flex items-center space-x-2 text-xs font-mono">
                       {validation.status === 'pass' && <Check className="w-4 h-4 text-green-400" />}
                       {validation.status === 'warn' && <AlertTriangle className="w-4 h-4 text-yellow-400" />}
                       {validation.status === 'fail' && <X className="w-4 h-4 text-red-400" />}

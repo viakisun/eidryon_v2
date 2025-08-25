@@ -1,18 +1,17 @@
 "use client";
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Map, MapPin, Navigation, Target, Route, Clock, Settings, Save, Upload, 
-  Play, Pause, Square, RotateCcw, Plus, Minus, X, Check, AlertTriangle,
-  Eye, Camera, Radio, Plane, Shield, Crosshair, Zap, Flag, Home,
-  ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Calculator,
-  Compass, Gauge, Wind, Thermometer, CloudRain, Sun, Brain, Cpu,
-  TrendingUp, BarChart3, Sparkles, RefreshCw, Zap as Lightning,
-  Activity, Users, Globe, Radar
+  MapPin, Target, Route, Clock, Save, Upload,
+  X, Check,
+  Crosshair,
+  Wind, Thermometer, CloudRain, Brain, Cpu,
+  Sparkles, RefreshCw
 } from 'lucide-react';
 
 const MissionPlanningSystem = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedAsset, setSelectedAsset] = useState<string | null>('UAV-001');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [missionMode, setMissionMode] = useState('planning');
   interface Waypoint {
     id: number;
@@ -29,6 +28,7 @@ const MissionPlanningSystem = () => {
   }
 
   const [waypoints, setWaypoints] = useState<Waypoint[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [currentWaypoint, setCurrentWaypoint] = useState(0);
   const [selectedTool, setSelectedTool] = useState('waypoint');
   const [aiOptimizing, setAiOptimizing] = useState(false);
@@ -51,6 +51,7 @@ const MissionPlanningSystem = () => {
     population: 50
   });
   
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [missionParams, setMissionParams] = useState({
     altitude: 1500,
     speed: 50,
@@ -68,6 +69,7 @@ const MissionPlanningSystem = () => {
   }
 
   // 위협 및 환경 데이터
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [environmentData, setEnvironmentData] = useState<EnvironmentData>({
     threats: [
       { id: 1, x: 25, y: 45, radius: 15, type: 'sam', severity: 'high' },
@@ -112,7 +114,7 @@ const MissionPlanningSystem = () => {
   }, []);
 
   // AI 최적화 알고리즘들
-  const geneticAlgorithm = (waypoints: Waypoint[], constraints: EnvironmentData): Promise<OptimizationResult> => {
+  const geneticAlgorithm = (waypoints: Waypoint[]): Promise<OptimizationResult> => {
     console.log('Running Genetic Algorithm...');
     return new Promise((resolve) => {
       let generation = 0;
@@ -170,7 +172,7 @@ const MissionPlanningSystem = () => {
     });
   };
 
-  const aStarAlgorithm = (waypoints: Waypoint[], constraints: EnvironmentData): Promise<OptimizationResult> => {
+  const aStarAlgorithm = (waypoints: Waypoint[]): Promise<OptimizationResult> => {
     console.log('Running A* Algorithm...');
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -203,7 +205,7 @@ const MissionPlanningSystem = () => {
     });
   };
 
-  const neuralNetworkAlgorithm = (waypoints: Waypoint[], constraints: EnvironmentData): Promise<OptimizationResult> => {
+  const neuralNetworkAlgorithm = (waypoints: Waypoint[]): Promise<OptimizationResult> => {
     console.log('Running Neural Network...');
     return new Promise((resolve) => {
       let epoch = 0;
@@ -368,20 +370,20 @@ const MissionPlanningSystem = () => {
       let result: OptimizationResult;
       switch(aiSettings.algorithm) {
         case 'genetic':
-          result = await geneticAlgorithm(waypoints, environmentData);
+          result = await geneticAlgorithm(waypoints);
           break;
         case 'a-star':
-          result = await aStarAlgorithm(waypoints, environmentData);
+          result = await aStarAlgorithm(waypoints);
           break;
         case 'neural':
-          result = await neuralNetworkAlgorithm(waypoints, environmentData);
+          result = await neuralNetworkAlgorithm(waypoints);
           break;
         default:
-          result = await geneticAlgorithm(waypoints, environmentData);
+          result = await geneticAlgorithm(waypoints);
       }
 
       // 최적화된 웨이포인트 적용
-      const optimizedWaypoints = result.optimizedWaypoints.map((wp, index) => ({
+      const optimizedWaypoints = result.optimizedWaypoints.map((wp) => ({
         ...wp,
         coordinates: {
           lat: 37.2431 + (wp.y - 50) * 0.001,
@@ -528,17 +530,6 @@ const MissionPlanningSystem = () => {
     setWaypoints(autoWaypoints);
   };
 
-  const getThreatColor = (level: string) => {
-    switch(level) {
-      case 'LOW': return 'text-green-400';
-      case 'MODERATE': return 'text-yellow-400';
-      case 'HIGH': return 'text-red-400';
-      case 'EXCELLENT': return 'text-green-400';
-      case 'GOOD': return 'text-blue-400';
-      default: return 'text-gray-400';
-    }
-  };
-
   const getEnvironmentColor = (type: string, severity: string) => {
     if (type === 'sam' || type === 'aa_gun') return severity === 'high' ? '#FF4444' : severity === 'medium' ? '#FF8844' : '#FFAA44';
     if (type === 'radar') return '#FF44FF';
@@ -557,7 +548,7 @@ const MissionPlanningSystem = () => {
     label?: string;
   }
 
-  const MilitarySymbol: React.FC<MilitarySymbolProps> = ({ type, affiliation = "friend", size = 32, label = "" }) => {
+  const MilitarySymbol: React.FC<MilitarySymbolProps> = ({ type, size = 32, label = "" }) => {
     const getSymbolPath = () => {
       switch(type) {
         case 'waypoint':
@@ -1032,7 +1023,7 @@ const MissionPlanningSystem = () => {
             )}
 
             {/* Waypoints */}
-            {waypoints.map((waypoint, index) => (
+            {waypoints.map((waypoint) => (
               <div
                 key={waypoint.id}
                 className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer group"
@@ -1149,8 +1140,8 @@ const MissionPlanningSystem = () => {
                   { label: 'SAFETY SCORE', value: aiMetrics.safetyScore, color: 'text-yellow-400' },
                   { label: 'STEALTH SCORE', value: aiMetrics.stealthScore, color: 'text-purple-400' },
                   { label: 'THREAT AVOIDANCE', value: aiMetrics.threatAvoidance, color: 'text-red-400' }
-                ].map((metric, index) => (
-                  <div key={index}>
+                ].map((metric) => (
+                  <div key={metric.label}>
                     <div className="flex justify-between text-xs font-mono mb-1">
                       <span>{metric.label}:</span>
                       <span className={metric.color}>{metric.value.toFixed(0)}%</span>
@@ -1182,7 +1173,7 @@ const MissionPlanningSystem = () => {
           ) : (
             <div className="space-y-2 max-h-64 overflow-y-auto mb-4">
               <div className="text-sm font-semibold mb-2 font-mono">WAYPOINT LIST</div>
-              {waypoints.map((waypoint, index) => (
+              {waypoints.map((waypoint) => (
                 <div
                   key={waypoint.id}
                   className={`bg-gray-700 rounded-lg p-3 transition-all ${

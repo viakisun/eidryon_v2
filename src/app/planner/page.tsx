@@ -53,6 +53,7 @@ const PlannerView = () => {
     successProbability: 78,
     alternativeRoutes: 3
   });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [collaborators, setCollaborators] = useState([
     { id: 1, name: 'CPT Johnson', role: 'COMMANDER', status: 'online' },
     { id: 2, name: 'SGT Miller', role: 'OPERATOR', status: 'busy' },
@@ -714,7 +715,7 @@ const PlannerView = () => {
             )}
 
             {/* Waypoints */}
-            {waypoints.map((waypoint, index) => (
+            {waypoints.map((waypoint) => (
               <div
                 key={waypoint.id}
                 className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer group"
