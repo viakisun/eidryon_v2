@@ -2,7 +2,28 @@
 
 import React from 'react';
 
-const jsonData = {
+interface TextObject {
+  type: 'plain_text' | 'mrkdwn';
+  text: string;
+}
+
+interface Accessory {
+  type: 'button';
+  text: TextObject;
+  url: string;
+  action_id: string;
+  style?: string;
+}
+
+interface Block {
+  type: 'header' | 'section' | 'divider' | 'context' | 'actions';
+  text?: TextObject;
+  fields?: { type: 'mrkdwn', text: string }[];
+  accessory?: Accessory;
+  elements?: (Accessory | TextObject)[];
+}
+
+const jsonData: { blocks: Block[] } = {
   "blocks": [
     {
       "type": "header",
@@ -390,20 +411,20 @@ const jsonData = {
   ]
 };
 
-const MrkdwnText = ({ text }) => {
+const MrkdwnText = ({ text }: { text: string }) => {
   const html = text
     .replace(/\*(.*?)\*/g, '<strong>$1</strong>')
     .replace(/•/g, '<br/>•')
-    .replace(/```(.*?)```/gs, '<pre class="bg-gray-800 p-4 rounded-lg text-sm whitespace-pre-wrap"><code>$1</code></pre>')
+    .replace(/```([\s\S]*?)```/g, '<pre class="bg-gray-800 p-4 rounded-lg text-sm whitespace-pre-wrap"><code>$1</code></pre>')
      .replace(/\n/g, '<br />');
 
   return <p className="text-gray-300" dangerouslySetInnerHTML={{ __html: html }} />;
 };
 
-const BlockRenderer = ({ block }) => {
+const BlockRenderer = ({ block }: { block: Block }) => {
   switch (block.type) {
     case 'header':
-      return <h1 className="text-4xl font-bold text-white mb-4">{block.text.text}</h1>;
+      return <h1 className="text-4xl font-bold text-white mb-4">{block.text ? block.text.text : ''}</h1>;
     case 'section':
       return (
         <div className="mb-6">
@@ -443,34 +464,43 @@ const BlockRenderer = ({ block }) => {
     case 'context':
       return (
         <div className="text-sm text-gray-500 mt-2 mb-4">
-          {block.elements.map((element, index) => (
-            <MrkdwnText key={index} text={element.text} />
-          ))}
+          {block.elements && block.elements.map((element, index) => {
+            if ('text' in element && typeof element.text === 'string') {
+              return <MrkdwnText key={index} text={element.text} />;
+            }
+            return null;
+          })}
         </div>
       );
     case 'actions':
         return (
             <div className="flex flex-wrap gap-4 mt-8">
-              {block.elements.map((element, index) => (
-                <a
-                  key={index}
-                  href={element.url}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    const targetUrl = e.currentTarget.href;
-                    if (document.fullscreenElement) {
-                        document.exitFullscreen().then(() => window.open(targetUrl, '_self'));
-                    } else {
-                        document.documentElement.requestFullscreen().then(() => window.open(targetUrl, '_self'));
-                    }
-                  }}
-                  className={`bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors text-lg flex items-center justify-center space-x-2
-                    ${element.style === 'primary' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-600 hover:bg-gray-700'}`}
-                >
-                  <span>{element.text.text.split(' ')[0]}</span>
-                  <span>{element.text.text.split(' ').slice(1).join(' ')}</span>
-                </a>
-              ))}
+              {block.elements && block.elements.map((element, index) => {
+                if (element.type === 'button') {
+                  const accessory = element as Accessory;
+                  return (
+                    <a
+                      key={index}
+                      href={accessory.url}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        const targetUrl = e.currentTarget.href;
+                        if (document.fullscreenElement) {
+                            document.exitFullscreen().then(() => window.open(targetUrl, '_self'));
+                        } else {
+                            document.documentElement.requestFullscreen().then(() => window.open(targetUrl, '_self'));
+                        }
+                      }}
+                      className={`bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors text-lg flex items-center justify-center space-x-2
+                        ${accessory.style === 'primary' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-600 hover:bg-gray-700'}`}
+                    >
+                      <span>{accessory.text.text.split(' ')[0]}</span>
+                      <span>{accessory.text.text.split(' ').slice(1).join(' ')}</span>
+                    </a>
+                  )
+                }
+                return null;
+              })}
             </div>
           );
     default:

@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Camera, Shield, Clock, Bell, X, Square, ZoomIn, ZoomOut, Volume2, VolumeX, Monitor, Grid3X3, Crosshair, Sun, Moon, Wifi, WifiOff } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Camera, Shield, Clock, Bell, X, Square, ZoomIn, ZoomOut, Volume2, VolumeX, Monitor, Grid3X3, Crosshair, Sun, Moon } from 'lucide-react';
 
 const IntegratedOperationsDashboard = () => {
   interface Notification {
@@ -180,7 +180,7 @@ const IntegratedOperationsDashboard = () => {
     }
   ]);
 
-  const generateVideoFrame = useCallback((assetId: string): FeedData => {
+  const generateVideoFrame = useCallback((): FeedData => {
     const timestamp = new Date().toISOString();
     const frameData = {
       timestamp,
@@ -205,7 +205,7 @@ const IntegratedOperationsDashboard = () => {
       const newFeeds = { ...prev };
       assets.forEach(asset => {
         if (asset.status === 'active' && (asset.type === 'uav-surveillance' || asset.type === 'uav-reconnaissance' || asset.type === 'uav-attack')) {
-          newFeeds[asset.id] = generateVideoFrame(asset.id);
+          newFeeds[asset.id] = generateVideoFrame();
         }
       });
       return newFeeds;
@@ -412,9 +412,7 @@ const IntegratedOperationsDashboard = () => {
 
     return (
       <div 
-        className={\`relative bg-black rounded-lg overflow-hidden cursor-pointer transition-all \${
-          isActive ? 'ring-2 ring-green-400' : 'hover:ring-1 hover:ring-gray-400'
-        }\`}
+        className={'relative bg-black rounded-lg overflow-hidden cursor-pointer transition-all ' + (isActive ? 'ring-2 ring-green-400' : 'hover:ring-1 hover:ring-gray-400')}
         onClick={() => onSelect(assetId)}
       >
         {/* Simulated Video Feed */}
@@ -444,8 +442,8 @@ const IntegratedOperationsDashboard = () => {
             <div 
               className="absolute w-12 h-12 border-2 border-red-400 rounded-full opacity-80"
               style={{
-                left: \`\${feedData.targeting.crosshairX}%\`,
-                top: \`\${feedData.targeting.crosshairY}%\`,
+                left: `${feedData.targeting.crosshairX}%`,
+                top: `${feedData.targeting.crosshairY}%`,
                 transform: 'translate(-50%, -50%)'
               }}
             >
@@ -537,15 +535,6 @@ const IntegratedOperationsDashboard = () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch(status) {
-      case 'active': return 'text-green-400';
-      case 'standby': return 'text-yellow-400';
-      case 'maintenance': return 'text-red-400';
-      default: return 'text-gray-400';
-    }
-  };
-
   // Video control functions
   const handleVideoControl = (action: string) => {
     setVideoControls(prev => {
@@ -616,7 +605,7 @@ const IntegratedOperationsDashboard = () => {
                   <div className="p-4 text-gray-400 text-center font-mono">NO ACTIVE ALERTS</div>
                 ) : (
                   notifications.map(notification => (
-                    <div key={notification.id} className={\`p-3 border-b border-gray-700 last:border-b-0 \${getNotificationColor(notification.type)} border-l-4\`}>
+                    <div key={notification.id} className={'p-3 border-b border-gray-700 last:border-b-0 ' + getNotificationColor(notification.type) + ' border-l-4'}>
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
                           <div className="text-sm font-mono">{notification.message}</div>
@@ -698,36 +687,28 @@ const IntegratedOperationsDashboard = () => {
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <button 
                   onClick={() => handleVideoControl('toggle_recording')}
-                  className={\`p-2 rounded font-mono flex items-center justify-center space-x-1 \${
-                    videoControls.isRecording ? 'bg-red-600 text-white' : 'bg-gray-600 hover:bg-gray-500'
-                  }\`}
+                  className={'p-2 rounded font-mono flex items-center justify-center space-x-1 ' + (videoControls.isRecording ? 'bg-red-600 text-white' : 'bg-gray-600 hover:bg-gray-500')}
                 >
                   <Square className="w-3 h-3" />
                   <span>REC</span>
                 </button>
                 <button 
                   onClick={() => handleVideoControl('toggle_thermal')}
-                  className={\`p-2 rounded font-mono flex items-center justify-center space-x-1 \${
-                    videoControls.thermalMode ? 'bg-orange-600 text-white' : 'bg-gray-600 hover:bg-gray-500'
-                  }\`}
+                  className={'p-2 rounded font-mono flex items-center justify-center space-x-1 ' + (videoControls.thermalMode ? 'bg-orange-600 text-white' : 'bg-gray-600 hover:bg-gray-500')}
                 >
                   {videoControls.thermalMode ? <Sun className="w-3 h-3" /> : <Moon className="w-3 h-3" />}
                   <span>THERM</span>
                 </button>
                 <button 
                   onClick={() => handleVideoControl('toggle_crosshair')}
-                  className={\`p-2 rounded font-mono flex items-center justify-center space-x-1 \${
-                    videoControls.showCrosshair ? 'bg-green-600 text-white' : 'bg-gray-600 hover:bg-gray-500'
-                  }\`}
+                  className={'p-2 rounded font-mono flex items-center justify-center space-x-1 ' + (videoControls.showCrosshair ? 'bg-green-600 text-white' : 'bg-gray-600 hover:bg-gray-500')}
                 >
                   <Crosshair className="w-3 h-3" />
                   <span>CROSS</span>
                 </button>
                 <button 
                   onClick={() => handleVideoControl('toggle_grid')}
-                  className={\`p-2 rounded font-mono flex items-center justify-center space-x-1 \${
-                    videoControls.showGrid ? 'bg-blue-600 text-white' : 'bg-gray-600 hover:bg-gray-500'
-                  }\`}
+                  className={'p-2 rounded font-mono flex items-center justify-center space-x-1 ' + (videoControls.showGrid ? 'bg-blue-600 text-white' : 'bg-gray-600 hover:bg-gray-500')}
                 >
                   <Grid3X3 className="w-3 h-3" />
                   <span>GRID</span>
@@ -805,8 +786,8 @@ const IntegratedOperationsDashboard = () => {
                   <div 
                     className="absolute w-24 h-24 border-4 border-red-400 rounded-full opacity-80"
                     style={{
-                      left: \`\${videoFeeds[activeVideoFeed].targeting.crosshairX}%\`,
-                      top: \`\${videoFeeds[activeVideoFeed].targeting.crosshairY}%\`,
+                      left: `${videoFeeds[activeVideoFeed].targeting.crosshairX}%`,
+                      top: `${videoFeeds[activeVideoFeed].targeting.crosshairY}%`,
                       transform: 'translate(-50%, -50%)'
                     }}
                   >
@@ -896,12 +877,10 @@ const IntegratedOperationsDashboard = () => {
             {assets.map(asset => (
               <div
                 key={asset.id}
-                className={\`absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer \${
-                  selectedAsset === asset.id ? 'scale-125' : 'hover:scale-110'
-                } transition-transform\`}
+                className={'absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer ' + (selectedAsset === asset.id ? 'scale-125' : 'hover:scale-110') + ' transition-transform'}
                 style={{
-                  left: \`\${asset.position.x}%\`,
-                  top: \`\${asset.position.y}%\`
+                  left: `${asset.position.x}%`,
+                  top: `${asset.position.y}%`
                 }}
                 onClick={() => setSelectedAsset(selectedAsset === asset.id ? null : asset.id)}
               >
@@ -912,9 +891,7 @@ const IntegratedOperationsDashboard = () => {
                   size={20}
                 />
                 {asset.hasCamera && asset.status === 'active' && (
-                  <div className={\`absolute -top-1 -right-1 w-3 h-3 rounded-full \${
-                    activeVideoFeed === asset.id ? 'bg-red-500 animate-pulse' : 'bg-blue-500'
-                  }\`}></div>
+                  <div className={'absolute -top-1 -right-1 w-3 h-3 rounded-full ' + (activeVideoFeed === asset.id ? 'bg-red-500 animate-pulse' : 'bg-blue-500')}></div>
                 )}
               </div>
             ))}
@@ -926,9 +903,7 @@ const IntegratedOperationsDashboard = () => {
             {assets.map(asset => (
               <div
                 key={asset.id}
-                className={\`bg-gray-700 rounded-lg p-2 cursor-pointer transition-all border \${
-                  selectedAsset === asset.id ? 'ring-1 ring-green-400 border-green-400' : 'border-transparent hover:bg-gray-650'
-                }\`}
+                className={'bg-gray-700 rounded-lg p-2 cursor-pointer transition-all border ' + (selectedAsset === asset.id ? 'ring-1 ring-green-400 border-green-400' : 'border-transparent hover:bg-gray-650')}
                 onClick={() => {
                   setSelectedAsset(selectedAsset === asset.id ? null : asset.id);
                   if (asset.hasCamera && asset.status === 'active') {
@@ -950,14 +925,9 @@ const IntegratedOperationsDashboard = () => {
                   </div>
                   <div className="flex items-center space-x-1">
                     {asset.hasCamera && (
-                      <Camera className={\`w-3 h-3 \${
-                        activeVideoFeed === asset.id ? 'text-red-400' : 'text-blue-400'
-                      }\`} />
+                      <Camera className={'w-3 h-3 ' + (activeVideoFeed === asset.id ? 'text-red-400' : 'text-blue-400')} />
                     )}
-                    <div className={\`w-2 h-2 rounded-full \${
-                      asset.status === 'active' ? 'bg-green-400' :
-                      asset.status === 'standby' ? 'bg-yellow-400' : 'bg-red-400'
-                    }\`}></div>
+                    <div className={'w-2 h-2 rounded-full ' + (asset.status === 'active' ? 'bg-green-400' : asset.status === 'standby' ? 'bg-yellow-400' : 'bg-red-400')}></div>
                   </div>
                 </div>
                 
