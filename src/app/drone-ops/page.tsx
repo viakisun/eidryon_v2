@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Camera, Radio, Battery, AlertTriangle, Target, Navigation, Shield, Activity, MapPin, Clock, Users, Zap, Settings, Eye, Plane, Bell, X, ChevronDown, ChevronUp, Compass, Gauge, Navigation2, Wifi, WifiOff } from 'lucide-react';
+import { Battery, AlertTriangle, Navigation, Shield, MapPin, Clock, Settings, Bell, X, ChevronDown, ChevronUp, Compass, Gauge, Wifi, WifiOff } from 'lucide-react';
 
 const IntegratedOperationsDashboard = () => {
   interface Notification {

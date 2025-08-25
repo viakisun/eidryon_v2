@@ -31,12 +31,15 @@ type ThreatLevel = 'LOW' | 'MODERATE' | 'HIGH' | 'CRITICAL';
 
 const CommanderView = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedMission, setSelectedMission] = useState('GUARDIAN-SHIELD');
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [alertsCount, setAlertsCount] = useState(3);
   const [commandMode, setCommandMode] = useState('NORMAL'); // NORMAL, ALERT, EMERGENCY
   const [audioEnabled, setAudioEnabled] = useState(true);
 
   // 실시간 작전 데이터
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [operationalData, setOperationalData] = useState<{
     totalAssets: number;
     activeAssets: number;
@@ -113,6 +116,7 @@ const CommanderView = () => {
     { id: 5, time: '13:37:01', type: 'SUCCESS', message: 'Weather conditions favorable for operations', priority: 'LOW' }
   ]);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [intelSummary, setIntelSummary] = useState({
     totalReports: 24,
     newReports: 6,
