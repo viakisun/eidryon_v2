@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useEffect, useRef } from 'react';
-import { MapPin, Route, Clock, Crosshair, Brain, RefreshCw, Users, Globe, Radar, Satellite, Radio, Camera, Info, Rss, Shield, Target as TargetIcon, Database } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { MapPin, Route, Clock, Crosshair, Brain, RefreshCw, Users, Globe, Radar, Satellite, Radio, Camera, Info, Rss, Shield, Target, Target as TargetIcon, Database } from 'lucide-react';
 
 const MissionPlanningSystem = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -101,20 +101,7 @@ const MissionPlanningSystem = () => {
 
   const mapRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-      if (realTimeIntel.enabled) {
-        updateRealTimeIntelligence();
-        updateSituationalAwareness();
-      }
-    }, 2000); // 2초마다 인텔 업데이트
-
-    return () => clearInterval(timer);
-  }, [realTimeIntel.enabled, updateSituationalAwareness]);
-
-  // 실시간 인텔리전스 업데이트
-  const updateRealTimeIntelligence = () => {
+  const updateRealTimeIntelligence = useCallback(() => {
     // SIGINT (Signal Intelligence) - 적 통신 감청
     if (Math.random() < 0.3) {
       const newReport = {
@@ -223,9 +210,9 @@ const MissionPlanningSystem = () => {
         osint: { ...prev.sources.osint, confidence: Math.max(65, prev.sources.osint.confidence + (Math.random() - 0.5) * 18) }
       }
     }));
-  };
+  }, []);
 
-  const updateSituationalAwareness = React.useCallback(() => {
+  const updateSituationalAwareness = useCallback(() => {
     const highThreats = liveThreats.filter(t => t.threat_level === 'HIGH').length;
     const mediumThreats = liveThreats.filter(t => t.threat_level === 'MEDIUM').length;
     
@@ -245,6 +232,18 @@ const MissionPlanningSystem = () => {
       airspace: threatLevel === 'CRITICAL' ? 'DENIED' : threatLevel === 'HIGH' ? 'CONTESTED' : 'PERMISSIVE'
     }));
   }, [liveThreats, enemyUnits, realTimeIntel.sources.sigint.status]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+      if (realTimeIntel.enabled) {
+        updateRealTimeIntelligence();
+        updateSituationalAwareness();
+      }
+    }, 2000); // 2초마다 인텔 업데이트
+
+    return () => clearInterval(timer);
+  }, [realTimeIntel.enabled, updateSituationalAwareness, updateRealTimeIntelligence]);
 
   // 초기 전장 상황 설정
   useEffect(() => {
@@ -287,21 +286,7 @@ const MissionPlanningSystem = () => {
     ]);
   }, []);
 
-  // 자동 재계획 시스템
-  useEffect(() => {
-    if (autoReplan && waypoints.length > 0) {
-      const pathThreats = checkPathThreats();
-      if (pathThreats.high > 0 || pathThreats.critical > 0) {
-        console.log('위협 탐지로 인한 자동 재계획 트리거');
-        // AI 재최적화 실행
-        if (!aiOptimizing) {
-          runAutoReplan();
-        }
-      }
-    }
-  }, [liveThreats, enemyUnits, autoReplan, aiOptimizing, checkPathThreats, runAutoReplan, waypoints.length]);
-
-  const checkPathThreats = React.useCallback(() => {
+  const checkPathThreats = useCallback(() => {
     let high = 0, medium = 0, critical = 0;
     
     waypoints.forEach(wp => {
@@ -318,7 +303,7 @@ const MissionPlanningSystem = () => {
     return { critical, high, medium };
   }, [waypoints, liveThreats]);
 
-  const runAutoReplan = React.useCallback(async () => {
+  const runAutoReplan = useCallback(async () => {
     setAiOptimizing(true);
     // 실시간 위협 정보를 AI에 반영하여 재계획
     setTimeout(() => {
@@ -369,7 +354,21 @@ const MissionPlanningSystem = () => {
       
       setAiOptimizing(false);
     }, 3000);
-  }, [waypoints, liveThreats, setWaypoints, setIntelReports]);
+  }, [waypoints, liveThreats]);
+
+  // 자동 재계획 시스템
+  useEffect(() => {
+    if (autoReplan && waypoints.length > 0) {
+      const pathThreats = checkPathThreats();
+      if (pathThreats.high > 0 || pathThreats.critical > 0) {
+        console.log('위협 탐지로 인한 자동 재계획 트리거');
+        // AI 재최적화 실행
+        if (!aiOptimizing) {
+          runAutoReplan();
+        }
+      }
+    }
+  }, [liveThreats, enemyUnits, autoReplan, aiOptimizing, checkPathThreats, runAutoReplan, waypoints.length]);
 
   // 기존 함수들
   const addWaypoint = (x: number, y: number) => {

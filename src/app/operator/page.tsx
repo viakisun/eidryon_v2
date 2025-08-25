@@ -14,12 +14,71 @@ import {
 } from 'lucide-react';
 
 type NotificationType = 'error' | 'warning' | 'success' | 'info';
+type ControlMode = 'AUTO' | 'MANUAL' | 'ASSIST';
+
+interface Telemetry {
+  lat: number;
+  lng: number;
+  altitude: number;
+  speed: number;
+  heading: number;
+  yaw: number;
+  pitch: number;
+  roll: number;
+  battery: number;
+  flightTime: string;
+  distanceHome: number;
+  satellites: number;
+}
+
+interface Mission {
+  id: string;
+  status: string;
+  progress: number;
+  currentWaypoint: number;
+  totalWaypoints: number;
+  eta: string;
+}
+
+interface Payload {
+  camera: { active: boolean; zoom: number; mode: string; };
+  sensors: { radar: boolean; lidar: boolean; thermal: boolean; };
+}
+
+interface Drone {
+  telemetry: Telemetry;
+  mission: Mission;
+  payload: Payload;
+}
+
+interface DroneData {
+  [key: string]: Drone;
+}
+
+interface Notification {
+  id: number;
+  message: string;
+  type: NotificationType;
+  timestamp: Date;
+}
+
+interface VideoFeed {
+  active: boolean;
+  quality: string;
+  zoom: number;
+  brightness: number;
+  contrast: number;
+  thermal: boolean;
+  recording: boolean;
+  crosshair: boolean;
+  grid: boolean;
+}
 
 const OperatorView = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedDrone, setSelectedDrone] = useState('UAV-001');
-  const [controlMode, setControlMode] = useState('AUTO'); // AUTO, MANUAL, ASSIST
-  const [videoFeed, setVideoFeed] = useState({
+  const [controlMode, setControlMode] = useState<ControlMode>('AUTO'); // AUTO, MANUAL, ASSIST
+  const [videoFeed, setVideoFeed] = useState<VideoFeed>({
     active: true,
     quality: 'HD',
     zoom: 1.0,
@@ -49,7 +108,7 @@ const OperatorView = () => {
     motors: [98, 97, 99, 96]
   });
   const [emergencyMode, setEmergencyMode] = useState(false);
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   // 조작 가능한 드론 목록
   const availableDrones = [
@@ -59,7 +118,7 @@ const OperatorView = () => {
     { id: 'UAV-005', name: 'Shadow Walker', type: 'reconnaissance', status: 'ACTIVE', assigned: false }
   ];
 
-  const [droneData, setDroneData] = useState({
+  const [droneData, setDroneData] = useState<DroneData>({
     'UAV-001': {
       telemetry: {
         lat: 37.2431,
@@ -172,13 +231,13 @@ const OperatorView = () => {
     addNotification('RETURN TO BASE INITIATED', 'info');
   };
 
-  const switchControlMode = (mode) => {
+  const switchControlMode = (mode: ControlMode) => {
     setControlMode(mode);
     addNotification(`CONTROL MODE: ${mode}`, 'info');
   };
 
   // 영상 제어 함수들
-  const handleVideoControl = (action, value) => {
+  const handleVideoControl = (action: string, value?: number) => {
     setVideoFeed(prev => {
       switch(action) {
         case 'zoom_in':
@@ -186,9 +245,15 @@ const OperatorView = () => {
         case 'zoom_out':
           return { ...prev, zoom: Math.max(prev.zoom - 0.5, 1) };
         case 'brightness':
-          return { ...prev, brightness: value };
+          if (value !== undefined) {
+            return { ...prev, brightness: value };
+          }
+          return prev;
         case 'contrast':
-          return { ...prev, contrast: value };
+          if (value !== undefined) {
+            return { ...prev, contrast: value };
+          }
+          return prev;
         case 'thermal':
           return { ...prev, thermal: !prev.thermal };
         case 'recording':
@@ -261,7 +326,7 @@ const OperatorView = () => {
 
           {/* Control Mode */}
           <div className="flex items-center space-x-1">
-            {['AUTO', 'ASSIST', 'MANUAL'].map(mode => (
+            {(['AUTO', 'ASSIST', 'MANUAL'] as ControlMode[]).map(mode => (
               <button
                 key={mode}
                 onClick={() => switchControlMode(mode)}

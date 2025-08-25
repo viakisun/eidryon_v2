@@ -17,14 +17,77 @@ type Priority = 'HIGH' | 'MEDIUM' | 'LOW' | 'CRITICAL';
 type Difficulty = 'EASY' | 'MEDIUM' | 'HARD';
 type WaypointType = 'normal' | 'target' | 'recon' | 'surveillance' | 'home';
 
+interface MissionTemplate {
+  id: string;
+  name: string;
+  type: string;
+  description: string;
+  waypoints: number;
+  duration: number;
+  assets: number;
+  difficulty: Difficulty;
+  usage: number;
+}
+
+type WaypointAction = 'flyby' | 'loiter' | 'survey' | 'takeoff' | 'land';
+
+interface Waypoint {
+  id: number;
+  x: number;
+  y: number;
+  type: WaypointType;
+  altitude: number;
+  speed: number;
+  action: WaypointAction;
+  loiterTime?: number;
+  payload?: string;
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
+  notes?: string;
+}
+
+interface MissionParams {
+  name: string;
+  type: string;
+  priority: Priority;
+  startTime: string;
+  duration: number;
+  assets: string[];
+  weather: string;
+  commander: string;
+  backup: boolean;
+}
+
+interface Collaborator {
+  id: number;
+  name: string;
+  role: string;
+  status: 'online' | 'busy' | 'offline';
+}
+
+interface MissionLibrary {
+  id: string;
+  name: string;
+  type: string;
+  status: Status;
+  priority: Priority;
+  startTime: string;
+  planner: string;
+  progress: number;
+  lastModified: Date;
+  waypoints?: Waypoint[];
+  parameters?: MissionParams;
+}
 
 const PlannerView = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedTool, setSelectedTool] = useState('waypoint');
-  const [selectedMission, setSelectedMission] = useState(null);
-  const [missionLibrary, setMissionLibrary] = useState([]);
-  const [waypoints, setWaypoints] = useState([]);
-  const [missionTemplates, setMissionTemplates] = useState([]);
+  const [selectedMission, setSelectedMission] = useState<string | null>(null);
+  const [missionLibrary, setMissionLibrary] = useState<MissionLibrary[]>([]);
+  const [waypoints, setWaypoints] = useState<Waypoint[]>([]);
+  const [missionTemplates, setMissionTemplates] = useState<MissionTemplate[]>([]);
   const [planningMode, setPlanningMode] = useState('create'); // create, edit, review, simulate
   const [mapLayers, setMapLayers] = useState({
     terrain: true,
@@ -34,7 +97,7 @@ const PlannerView = () => {
     routes: true,
     assets: true
   });
-  const [missionParams, setMissionParams] = useState({
+  const [missionParams, setMissionParams] = useState<MissionParams>({
     name: '',
     type: 'reconnaissance',
     priority: 'MEDIUM',
@@ -54,13 +117,13 @@ const PlannerView = () => {
     alternativeRoutes: 3
   });
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [collaborators, setCollaborators] = useState([
+  const [collaborators, setCollaborators] = useState<Collaborator[]>([
     { id: 1, name: 'CPT Johnson', role: 'COMMANDER', status: 'online' },
     { id: 2, name: 'SGT Miller', role: 'OPERATOR', status: 'busy' },
     { id: 3, name: 'LT Davis', role: 'ANALYST', status: 'online' }
   ]);
 
-  const mapRef = useRef(null);
+  const mapRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -172,12 +235,12 @@ const PlannerView = () => {
     ]);
   };
 
-  const addWaypoint = (x, y) => {
-    const newWaypoint = {
+  const addWaypoint = (x: number, y: number) => {
+    const newWaypoint: Waypoint = {
       id: waypoints.length + 1,
       x: x,
       y: y,
-      type: selectedTool === 'waypoint' ? 'normal' : selectedTool,
+      type: (selectedTool === 'waypoint' ? 'normal' : selectedTool) as WaypointType,
       altitude: 1500,
       speed: 50,
       action: 'flyby',
@@ -192,18 +255,18 @@ const PlannerView = () => {
     setWaypoints([...waypoints, newWaypoint]);
   };
 
-  const removeWaypoint = (id) => {
+  const removeWaypoint = (id: number) => {
     setWaypoints(waypoints.filter(wp => wp.id !== id));
   };
 
-  const updateWaypoint = (id, updates) => {
+  const updateWaypoint = (id: number, updates: Partial<Waypoint>) => {
     setWaypoints(waypoints.map(wp => 
       wp.id === id ? { ...wp, ...updates } : wp
     ));
   };
 
   const createNewMission = () => {
-    const newMission = {
+    const newMission: MissionLibrary = {
       id: `MSN-${new Date().getFullYear()}-${String(missionLibrary.length + 1).padStart(3, '0')}`,
       name: missionParams.name || 'Untitled Mission',
       type: missionParams.type,
@@ -221,10 +284,10 @@ const PlannerView = () => {
     setSelectedMission(newMission.id);
   };
 
-  const duplicateMission = (missionId) => {
+  const duplicateMission = (missionId: string) => {
     const original = missionLibrary.find(m => m.id === missionId);
     if (original) {
-      const duplicate = {
+      const duplicate: MissionLibrary = {
         ...original,
         id: `MSN-${new Date().getFullYear()}-${String(missionLibrary.length + 1).padStart(3, '0')}`,
         name: `${original.name} (Copy)`,
@@ -236,7 +299,7 @@ const PlannerView = () => {
     }
   };
 
-  const loadTemplate = (templateId) => {
+  const loadTemplate = (templateId: string) => {
     const template = missionTemplates.find(t => t.id === templateId);
     if (template) {
       // 템플릿에 따른 웨이포인트 생성
@@ -249,8 +312,8 @@ const PlannerView = () => {
     }
   };
 
-  const generateTemplateWaypoints = (type, count) => {
-    const templateWaypoints = [];
+  const generateTemplateWaypoints = (type: string, count: number) => {
+    const templateWaypoints: Waypoint[] = [];
     
     switch(type) {
       case 'patrol':
@@ -268,7 +331,8 @@ const PlannerView = () => {
             coordinates: {
               lat: 37.2431 + ((50 + Math.sin(angle) * 20) - 50) * 0.001,
               lng: 127.0766 + ((50 + Math.cos(angle) * 30) - 50) * 0.001
-            }
+            },
+            notes: ''
           });
         }
         break;
@@ -288,7 +352,8 @@ const PlannerView = () => {
             coordinates: {
               lat: 37.2431 + ((30 + row * 15 + (col % 2) * 10) - 50) * 0.001,
               lng: 127.0766 + ((20 + col * 20) - 50) * 0.001
-            }
+            },
+            notes: ''
           });
         }
         break;
@@ -309,7 +374,8 @@ const PlannerView = () => {
             coordinates: {
               lat: 37.2431 + ((centerY + Math.sin(angle) * radius) - 50) * 0.001,
               lng: 127.0766 + ((centerX + Math.cos(angle) * radius) - 50) * 0.001
-            }
+            },
+            notes: ''
           });
         }
         break;
@@ -540,7 +606,7 @@ const PlannerView = () => {
                   {/* Quick Actions */}
                   <div className="flex space-x-1 mt-2">
                     <button 
-                      onClick={(e) => { e.stopPropagation(); duplicateMission(mission.id); }}
+                      onClick={(e: React.MouseEvent) => { e.stopPropagation(); duplicateMission(mission.id); }}
                       className="flex-1 bg-gray-500 hover:bg-gray-400 text-white py-1 px-2 rounded text-xs font-mono"
                     >
                       <Copy className="w-3 h-3 inline mr-1" />
@@ -566,7 +632,7 @@ const PlannerView = () => {
                 <input
                   type="text"
                   value={missionParams.name}
-                  onChange={(e) => setMissionParams(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMissionParams(prev => ({ ...prev, name: e.target.value }))}
                   className="w-full bg-gray-600 border border-gray-500 rounded px-2 py-1 text-sm font-mono"
                   placeholder="Enter mission name"
                 />
@@ -576,7 +642,7 @@ const PlannerView = () => {
                 <label className="text-xs font-mono text-gray-300 block mb-1">MISSION TYPE</label>
                 <select
                   value={missionParams.type}
-                  onChange={(e) => setMissionParams(prev => ({ ...prev, type: e.target.value }))}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setMissionParams(prev => ({ ...prev, type: e.target.value }))}
                   className="w-full bg-gray-600 border border-gray-500 rounded px-2 py-1 text-sm font-mono"
                 >
                   <option value="reconnaissance">RECONNAISSANCE</option>
@@ -591,7 +657,7 @@ const PlannerView = () => {
                 <label className="text-xs font-mono text-gray-300 block mb-1">PRIORITY</label>
                 <select
                   value={missionParams.priority}
-                  onChange={(e) => setMissionParams(prev => ({ ...prev, priority: e.target.value }))}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setMissionParams(prev => ({ ...prev, priority: e.target.value as Priority }))}
                   className="w-full bg-gray-600 border border-gray-500 rounded px-2 py-1 text-sm font-mono"
                 >
                   <option value="LOW">LOW</option>
@@ -606,7 +672,7 @@ const PlannerView = () => {
                 <input
                   type="datetime-local"
                   value={missionParams.startTime}
-                  onChange={(e) => setMissionParams(prev => ({ ...prev, startTime: e.target.value }))}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMissionParams(prev => ({ ...prev, startTime: e.target.value }))}
                   className="w-full bg-gray-600 border border-gray-500 rounded px-2 py-1 text-sm font-mono"
                 />
               </div>
@@ -615,7 +681,7 @@ const PlannerView = () => {
                 <label className="text-xs font-mono text-gray-300 block mb-1">COMMANDER</label>
                 <select
                   value={missionParams.commander}
-                  onChange={(e) => setMissionParams(prev => ({ ...prev, commander: e.target.value }))}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setMissionParams(prev => ({ ...prev, commander: e.target.value }))}
                   className="w-full bg-gray-600 border border-gray-500 rounded px-2 py-1 text-sm font-mono"
                 >
                   <option value="">Select Commander</option>
@@ -633,8 +699,8 @@ const PlannerView = () => {
           <div 
             ref={mapRef}
             className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 cursor-crosshair"
-            onClick={(e) => {
-              if (planningMode === 'create' || planningMode === 'edit') {
+            onClick={(e: React.MouseEvent<HTMLDivElement>) => {
+              if ((planningMode === 'create' || planningMode === 'edit') && mapRef.current) {
                 const rect = mapRef.current.getBoundingClientRect();
                 const x = ((e.clientX - rect.left) / rect.width) * 100;
                 const y = ((e.clientY - rect.top) / rect.height) * 100;
@@ -740,7 +806,7 @@ const PlannerView = () => {
                         <label className="text-gray-400 font-mono">TYPE</label>
                         <select 
                           value={waypoint.type}
-                          onChange={(e) => updateWaypoint(waypoint.id, { type: e.target.value })}
+                          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => updateWaypoint(waypoint.id, { type: e.target.value as WaypointType })}
                           className="w-full bg-gray-700 border border-gray-600 rounded px-1 py-0.5 text-xs font-mono"
                         >
                           <option value="normal">NORMAL</option>
@@ -753,7 +819,7 @@ const PlannerView = () => {
                         <label className="text-gray-400 font-mono">ACTION</label>
                         <select 
                           value={waypoint.action}
-                          onChange={(e) => updateWaypoint(waypoint.id, { action: e.target.value })}
+                          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => updateWaypoint(waypoint.id, { action: e.target.value as WaypointAction })}
                           className="w-full bg-gray-700 border border-gray-600 rounded px-1 py-0.5 text-xs font-mono"
                         >
                           <option value="flyby">FLYBY</option>
@@ -768,7 +834,7 @@ const PlannerView = () => {
                         <input
                           type="number"
                           value={waypoint.altitude}
-                          onChange={(e) => updateWaypoint(waypoint.id, { altitude: parseInt(e.target.value) })}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateWaypoint(waypoint.id, { altitude: parseInt(e.target.value) })}
                           className="w-full bg-gray-700 border border-gray-600 rounded px-1 py-0.5 text-xs font-mono"
                         />
                       </div>
@@ -777,7 +843,7 @@ const PlannerView = () => {
                         <input
                           type="number"
                           value={waypoint.speed}
-                          onChange={(e) => updateWaypoint(waypoint.id, { speed: parseInt(e.target.value) })}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateWaypoint(waypoint.id, { speed: parseInt(e.target.value) })}
                           className="w-full bg-gray-700 border border-gray-600 rounded px-1 py-0.5 text-xs font-mono"
                         />
                       </div>
@@ -833,7 +899,7 @@ const PlannerView = () => {
                     <input
                       type="checkbox"
                       checked={enabled}
-                      onChange={(e) => setMapLayers(prev => ({ ...prev, [layer]: e.target.checked }))}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMapLayers(prev => ({ ...prev, [layer]: e.target.checked }))}
                       className="rounded"
                     />
                     <span className="capitalize">{layer}</span>
