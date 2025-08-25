@@ -37,6 +37,21 @@ type IntelReport = {
   correlatedReports?: IntelReport[];
 };
 
+type TopSource = {
+  source: Source;
+  count: number;
+  reliability: number;
+};
+
+type AnalyticsData = {
+  totalReports: number;
+  newReports24h: number;
+  highPriorityReports: number;
+  verifiedReports: number;
+  avgConfidence: number;
+  topSources: TopSource[];
+};
+
 
 const AnalystView = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -123,7 +138,7 @@ const AnalystView = () => {
   ]);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [analyticsData, setAnalyticsData] = useState({
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData>({
     totalReports: 156,
     newReports24h: 24,
     highPriorityReports: 8,
