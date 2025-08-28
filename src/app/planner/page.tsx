@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  MapPin, Target, Clock, Save, Upload,
+  MapPin, Target, Save, Upload,
   Play, X,
   Eye, Camera, Home,
   Users,
@@ -11,6 +11,7 @@ import {
   Edit3, Copy,
   Download, FolderOpen, Share2, Archive, Book,
 } from 'lucide-react';
+import { PageLayout } from '@/components/PageLayout';
 
 type Status = 'DRAFT' | 'PLANNING' | 'APPROVED' | 'ACTIVE' | 'COMPLETED';
 type Priority = 'HIGH' | 'MEDIUM' | 'LOW' | 'CRITICAL';
@@ -82,13 +83,12 @@ interface MissionLibrary {
 }
 
 const PlannerView = () => {
-  const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedTool, setSelectedTool] = useState('waypoint');
   const [selectedMission, setSelectedMission] = useState<string | null>(null);
   const [missionLibrary, setMissionLibrary] = useState<MissionLibrary[]>([]);
   const [waypoints, setWaypoints] = useState<Waypoint[]>([]);
   const [missionTemplates, setMissionTemplates] = useState<MissionTemplate[]>([]);
-  const [planningMode, setPlanningMode] = useState('create'); // create, edit, review, simulate
+  const [planningMode] = useState('create'); // create, edit, review, simulate
   const [mapLayers, setMapLayers] = useState({
     terrain: true,
     weather: true,
@@ -126,15 +126,9 @@ const PlannerView = () => {
   const mapRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
     // 초기 데이터 로드
     loadMissionTemplates();
     loadMissionLibrary();
-
-    return () => clearInterval(timer);
   }, []);
 
   const loadMissionTemplates = () => {
@@ -454,76 +448,14 @@ const PlannerView = () => {
   };
 
   return (
-    <div className="h-screen bg-gray-900 text-gray-100 overflow-hidden">
-      {/* Top Planning Bar */}
-      <div className="h-16 bg-gray-800 border-b border-gray-700 flex items-center justify-between px-6">
-        <div className="flex items-center space-x-6">
-          <div className="flex items-center space-x-2">
-            <Edit3 className="w-6 h-6 text-blue-400" />
-            <span className="text-xl font-bold font-mono">MISSION PLANNER</span>
-            <span className="text-xs text-blue-400 font-mono">[TACTICAL]</span>
-          </div>
-          
-          <div className="h-6 w-px bg-gray-600"></div>
-          
-          {/* Planning Mode */}
-          <div className="flex items-center space-x-1">
-            {['create', 'edit', 'review', 'simulate'].map(mode => (
-              <button
-                key={mode}
-                onClick={() => setPlanningMode(mode)}
-                className={`px-3 py-1 rounded text-sm font-mono transition-colors ${
-                  planningMode === mode 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                }`}
-              >
-                {mode.toUpperCase()}
-              </button>
-            ))}
-          </div>
-
-          {/* Current Mission */}
-          {selectedMission && (
-            <>
-              <div className="h-6 w-px bg-gray-600"></div>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm font-mono text-gray-300">ACTIVE:</span>
-                <span className="text-sm font-mono text-blue-400">{selectedMission}</span>
-              </div>
-            </>
-          )}
-        </div>
-
-        <div className="flex items-center space-x-4">
-          {/* Collaboration Status */}
-          <div className="flex items-center space-x-2">
-            <Users className="w-4 h-4 text-green-400" />
-            <span className="text-sm font-mono text-green-400">
-              {collaborators.filter(c => c.status === 'online').length} ONLINE
-            </span>
-          </div>
-
-          {/* Auto-save Status */}
-          <div className="flex items-center space-x-2">
-            <Save className="w-4 h-4 text-gray-400" />
-            <span className="text-sm font-mono text-gray-400">AUTO-SAVED</span>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Clock className="w-4 h-4 text-gray-400" />
-            <span className="text-sm font-mono">{currentTime.toLocaleTimeString()}</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex h-full">
+    <PageLayout title="Mission Planner" icon={<Edit3 className="w-6 h-6 text-blue-400" />}>
+      <div className="planner-view">
         {/* Left Panel - Mission Library & Templates */}
-        <div className="w-80 bg-gray-800 border-r border-gray-700 p-4 space-y-4 overflow-y-auto">
+        <div className="planner-view__left-panel">
           
           {/* Mission Templates */}
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="text-sm font-medium mb-3 font-mono text-green-400 flex items-center justify-between">
+          <div className="planner-view__panel-section">
+            <div className="planner-view__panel-title" style={{ color: '$color-green-400' }}>
               <span>MISSION TEMPLATES</span>
               <Book className="w-4 h-4" />
             </div>
@@ -555,8 +487,8 @@ const PlannerView = () => {
           </div>
 
           {/* Mission Library */}
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="text-sm font-medium mb-3 font-mono text-purple-400 flex items-center justify-between">
+          <div className="planner-view__panel-section">
+            <div className="planner-view__panel-title" style={{ color: '$color-purple-400' }}>
               <span>MISSION LIBRARY</span>
               <div className="flex items-center space-x-2">
                 <FolderOpen className="w-4 h-4" />
@@ -623,8 +555,8 @@ const PlannerView = () => {
           </div>
 
           {/* Mission Parameters */}
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="text-sm font-medium mb-3 font-mono text-yellow-400">MISSION PARAMETERS</div>
+          <div className="planner-view__panel-section">
+            <div className="planner-view__panel-title" style={{ color: '$color-yellow-400' }}>MISSION PARAMETERS</div>
             
             <div className="space-y-3">
               <div>
@@ -695,7 +627,7 @@ const PlannerView = () => {
         </div>
 
         {/* Center - Planning Map */}
-        <div className="flex-1 relative">
+        <div className="planner-view__center-panel">
           <div 
             ref={mapRef}
             className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900 cursor-crosshair"
@@ -921,11 +853,11 @@ const PlannerView = () => {
         </div>
 
         {/* Right Panel - Analysis & Collaboration */}
-        <div className="w-80 bg-gray-800 border-l border-gray-700 p-4 space-y-4 overflow-y-auto">
+        <div className="planner-view__right-panel">
           
           {/* Mission Analysis */}
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="text-sm font-medium mb-3 font-mono text-cyan-400 flex items-center justify-between">
+          <div className="planner-view__panel-section">
+            <div className="planner-view__panel-title" style={{ color: '$color-cyan-400' }}>
               <span>MISSION ANALYSIS</span>
               <button 
                 onClick={analyzeMission}
@@ -983,8 +915,8 @@ const PlannerView = () => {
           </div>
 
           {/* Waypoint List */}
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="text-sm font-medium mb-3 font-mono text-green-400">WAYPOINT LIST</div>
+          <div className="planner-view__panel-section">
+            <div className="planner-view__panel-title" style={{ color: '$color-green-400' }}>WAYPOINT LIST</div>
             
             {waypoints.length === 0 ? (
               <div className="text-center text-gray-400 font-mono text-sm">
@@ -1024,8 +956,8 @@ const PlannerView = () => {
           </div>
 
           {/* Collaboration Panel */}
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="text-sm font-medium mb-3 font-mono text-orange-400">COLLABORATION</div>
+          <div className="planner-view__panel-section">
+            <div className="planner-view__panel-title" style={{ color: '$color-orange-400' }}>COLLABORATION</div>
             
             <div className="space-y-2">
               {collaborators.map(collaborator => (
@@ -1087,7 +1019,7 @@ const PlannerView = () => {
           </div>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

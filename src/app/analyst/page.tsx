@@ -5,14 +5,15 @@ import {
   Search, Database, TrendingUp, BarChart3,
   Activity, Camera, Radio, Satellite, Globe, Radar,
   Users, Target, Info,
-  CheckCircle, Clock,
+  CheckCircle,
   Brain,
-  FileText, Download, Share2, Archive,
+  FileText, Share2, Archive,
   Bookmark, Flag,
   RefreshCw,
   Plus,
   MessageSquare,
 } from 'lucide-react';
+import { PageLayout } from '@/components/PageLayout';
 
 type Source = 'SIGINT' | 'GEOINT' | 'ELINT' | 'IMINT' | 'HUMINT' | 'OSINT';
 type Priority = 'HIGH' | 'MEDIUM' | 'LOW';
@@ -64,15 +65,10 @@ type Threat = {
 
 
 const AnalystView = () => {
-  const [currentTime, setCurrentTime] = useState(new Date());
   const [selectedIntelType, setSelectedIntelType] = useState('ALL');
-  const [timeRange, setTimeRange] = useState('24H');
   const [confidenceFilter, setConfidenceFilter] = useState(50);
-  const [analysisMode, setAnalysisMode] = useState('realtime');
   const [selectedReport, setSelectedReport] = useState<IntelReport | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [activeAnalysis, setActiveAnalysis] = useState<unknown[]>([]);
 
   const [intelReports, setIntelReports] = useState<IntelReport[]>([
     {
@@ -255,77 +251,14 @@ const AnalystView = () => {
   };
 
   return (
-    <div className="h-screen bg-gray-900 text-gray-100 overflow-hidden">
-      {/* Top Analysis Bar */}
-      <div className="h-16 bg-gray-800 border-b border-gray-700 flex items-center justify-between px-6">
-        <div className="flex items-center space-x-6">
-          <div className="flex items-center space-x-2">
-            <Brain className="w-6 h-6 text-purple-400" />
-            <span className="text-xl font-bold font-mono">INTELLIGENCE ANALYST</span>
-            <span className="text-xs text-purple-400 font-mono">[CLASSIFIED]</span>
-          </div>
-          
-          <div className="h-6 w-px bg-gray-600"></div>
-          
-          <div className="flex items-center space-x-1">
-            {['realtime', 'historical', 'predictive'].map(mode => (
-              <button
-                key={mode}
-                onClick={() => setAnalysisMode(mode)}
-                className={`px-3 py-1 rounded text-sm font-mono transition-colors ${
-                  analysisMode === mode 
-                    ? 'bg-purple-600 text-white' 
-                    : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                }`}
-              >
-                {mode.toUpperCase()}
-              </button>
-            ))}
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <span className="text-sm font-mono text-gray-300">TIMERANGE:</span>
-            <select 
-              value={timeRange}
-              onChange={(e) => setTimeRange(e.target.value)}
-              className="bg-gray-700 border border-gray-600 rounded px-2 py-1 text-sm font-mono"
-            >
-              <option value="1H">1 HOUR</option>
-              <option value="6H">6 HOURS</option>
-              <option value="24H">24 HOURS</option>
-              <option value="7D">7 DAYS</option>
-              <option value="30D">30 DAYS</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <Activity className="w-4 h-4 text-green-400" />
-            <span className="text-sm font-mono text-green-400">
-              {activeAnalysis.length} ACTIVE ANALYSIS
-            </span>
-          </div>
-
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded font-mono text-sm">
-            <Download className="w-4 h-4 inline mr-1" />
-            EXPORT
-          </button>
-
-          <div className="flex items-center space-x-2">
-            <Clock className="w-4 h-4 text-gray-400" />
-            <span className="text-sm font-mono">{currentTime.toLocaleTimeString()}</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex h-full">
+    <PageLayout title="Intelligence Analyst" icon={<Brain className="w-6 h-6 text-purple-400" />}>
+      <div className="analyst-view">
         {/* Left Panel - Analytics & Filters */}
-        <div className="w-80 bg-gray-800 border-r border-gray-700 p-4 space-y-4 overflow-y-auto">
+        <div className="analyst-view__left-panel">
           
           {/* Search & Filters */}
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="text-sm font-medium mb-3 font-mono text-cyan-400">SEARCH & FILTERS</div>
+          <div className="analyst-view__panel-section">
+            <div className="analyst-view__panel-title">SEARCH & FILTERS</div>
             
             <div className="relative mb-3">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -375,8 +308,8 @@ const AnalystView = () => {
           </div>
 
           {/* Analytics Overview */}
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="text-sm font-medium mb-3 font-mono text-green-400">ANALYTICS OVERVIEW</div>
+          <div className="analyst-view__panel-section">
+            <div className="analyst-view__panel-title">ANALYTICS OVERVIEW</div>
             
             <div className="grid grid-cols-2 gap-3 mb-4">
               <div className="bg-gray-600 rounded p-2 text-center">
@@ -431,8 +364,8 @@ const AnalystView = () => {
           </div>
 
           {/* Threat Assessment Summary */}
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="text-sm font-medium mb-3 font-mono text-red-400">THREAT ASSESSMENT</div>
+          <div className="analyst-view__panel-section">
+            <div className="analyst-view__panel-title">THREAT ASSESSMENT</div>
             
             <div className="space-y-2">
               {threatAssessment.map(threat => (
@@ -478,8 +411,8 @@ const AnalystView = () => {
           </div>
 
           {/* Collaboration Panel */}
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="text-sm font-medium mb-3 font-mono text-orange-400">COLLABORATION</div>
+          <div className="analyst-view__panel-section">
+            <div className="analyst-view__panel-title">COLLABORATION</div>
             
             <div className="space-y-2">
               {collaborators.map(collab => (
@@ -504,7 +437,7 @@ const AnalystView = () => {
         </div>
 
         {/* Center - Intel Reports */}
-        <div className="flex-1 flex flex-col">
+        <div className="analyst-view__center-panel">
           {/* Reports Header */}
           <div className="bg-gray-800 border-b border-gray-700 p-4">
             <div className="flex items-center justify-between">
@@ -623,13 +556,13 @@ const AnalystView = () => {
         </div>
 
         {/* Right Panel - Detailed Analysis */}
-        <div className="w-96 bg-gray-800 border-l border-gray-700 p-4 space-y-4 overflow-y-auto">
+        <div className="analyst-view__right-panel">
           
           {selectedReport ? (
             <>
               {/* Selected Report Details */}
-              <div className="bg-gray-700 rounded-lg p-4">
-                <div className="text-sm font-medium mb-3 font-mono text-blue-400">DETAILED ANALYSIS</div>
+              <div className="analyst-view__panel-section">
+                <div className="analyst-view__panel-title">DETAILED ANALYSIS</div>
                 
                 <div className="space-y-3">
                   <div>
@@ -687,8 +620,8 @@ const AnalystView = () => {
 
               {/* Correlation Analysis */}
               {selectedReport.correlatedReports && (
-                <div className="bg-gray-700 rounded-lg p-4">
-                  <div className="text-sm font-medium mb-3 font-mono text-green-400">CORRELATED REPORTS</div>
+                <div className="analyst-view__panel-section">
+                  <div className="analyst-view__panel-title">CORRELATED REPORTS</div>
                   
                   <div className="space-y-2">
                     {selectedReport.correlatedReports.map(related => (
@@ -708,8 +641,8 @@ const AnalystView = () => {
               )}
 
               {/* AI Analysis */}
-              <div className="bg-gray-700 rounded-lg p-4">
-                <div className="text-sm font-medium mb-3 font-mono text-pink-400">AI ANALYSIS</div>
+              <div className="analyst-view__panel-section">
+                <div className="analyst-view__panel-title">AI ANALYSIS</div>
                 
                 <div className="space-y-3">
                   <div>
@@ -750,7 +683,7 @@ const AnalystView = () => {
             </>
           ) : (
             /* No Report Selected */
-            <div className="bg-gray-700 rounded-lg p-4 text-center">
+            <div className="analyst-view__panel-section text-center">
               <Database className="w-12 h-12 text-gray-500 mx-auto mb-4" />
               <div className="text-lg font-mono text-gray-400 mb-2">NO REPORT SELECTED</div>
               <div className="text-sm font-mono text-gray-500">
@@ -760,8 +693,8 @@ const AnalystView = () => {
           )}
 
           {/* Quick Analysis Tools */}
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="text-sm font-medium mb-3 font-mono text-cyan-400">ANALYSIS TOOLS</div>
+          <div className="analyst-view__panel-section">
+            <div className="analyst-view__panel-title">ANALYSIS TOOLS</div>
             
             <div className="grid grid-cols-2 gap-2">
               <button className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded font-mono text-xs">
@@ -784,8 +717,8 @@ const AnalystView = () => {
           </div>
 
           {/* Export Options */}
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="text-sm font-medium mb-3 font-mono text-yellow-400">EXPORT & SHARE</div>
+          <div className="analyst-view__panel-section">
+            <div className="analyst-view__panel-title">EXPORT & SHARE</div>
             
             <div className="space-y-2">
               <button className="w-full bg-cyan-600 hover:bg-cyan-700 text-white py-2 px-3 rounded font-mono text-sm">
@@ -804,7 +737,7 @@ const AnalystView = () => {
           </div>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 
