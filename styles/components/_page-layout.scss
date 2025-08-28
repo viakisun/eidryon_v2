@@ -1,0 +1,38 @@
+.page-layout {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  &__header {
+    flex-shrink: 0;
+    height: 4rem; // 64px
+    background-color: $color-surface;
+    border-bottom: 1px solid $color-border;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+  }
+
+  &__title {
+    font-size: 1.25rem; // 20px
+    font-weight: 600;
+    font-family: $font-sans;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  &__main {
+    flex-grow: 1;
+    overflow: auto; // Allow content to scroll if it overflows
+    padding: 1.5rem;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+}

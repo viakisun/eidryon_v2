@@ -5,13 +5,14 @@ import {
   Gamepad2, Camera, Battery, Crosshair, ZoomIn, ZoomOut,
   Pause, Square,
   Navigation, Thermometer,
-  Home, Clock, Wifi, WifiOff,
+  Home, Wifi, WifiOff,
   ChevronUp, ChevronDown, ArrowUp, ArrowDown, ArrowLeft, ArrowRight,
   Circle,
   Monitor, Grid3X3,
   Sun, Moon, Focus, Lock, Unlock,
   Target, Activity, Eye,
 } from 'lucide-react';
+import { PageLayout } from '@/components/PageLayout';
 
 type NotificationType = 'error' | 'warning' | 'success' | 'info';
 type ControlMode = 'AUTO' | 'MANUAL' | 'ASSIST';
@@ -75,8 +76,7 @@ interface VideoFeed {
 }
 
 const OperatorView = () => {
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [selectedDrone, setSelectedDrone] = useState('UAV-001');
+  const [selectedDrone] = useState('UAV-001');
   const [controlMode, setControlMode] = useState<ControlMode>('AUTO'); // AUTO, MANUAL, ASSIST
   const [videoFeed, setVideoFeed] = useState<VideoFeed>({
     active: true,
@@ -107,16 +107,7 @@ const OperatorView = () => {
     temperature: 68,
     motors: [98, 97, 99, 96]
   });
-  const [emergencyMode, setEmergencyMode] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
-
-  // 조작 가능한 드론 목록
-  const availableDrones = [
-    { id: 'UAV-001', name: 'Ghost Recon', type: 'reconnaissance', status: 'ACTIVE', assigned: true },
-    { id: 'UAV-002', name: 'Thunder Strike', type: 'attack', status: 'STANDBY', assigned: false },
-    { id: 'UAV-003', name: 'Eagle Eye', type: 'surveillance', status: 'ACTIVE', assigned: false },
-    { id: 'UAV-005', name: 'Shadow Walker', type: 'reconnaissance', status: 'ACTIVE', assigned: false }
-  ];
 
   const [droneData, setDroneData] = useState<DroneData>({
     'UAV-001': {
@@ -194,7 +185,6 @@ const OperatorView = () => {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentTime(new Date());
       updateTelemetry();
     }, 1000);
 
@@ -219,21 +209,9 @@ const OperatorView = () => {
     addNotification('LANDING INITIATED', 'info');
   };
 
-  const handleEmergencyStop = () => {
-    setEmergencyMode(true);
-    setFlightControls(prev => ({ ...prev, throttle: 0 }));
-    addNotification('EMERGENCY STOP ACTIVATED', 'error');
-    setTimeout(() => setEmergencyMode(false), 5000);
-  };
-
   const handleReturnToBase = () => {
     setControlMode('AUTO');
     addNotification('RETURN TO BASE INITIATED', 'info');
-  };
-
-  const switchControlMode = (mode: ControlMode) => {
-    setControlMode(mode);
-    addNotification(`CONTROL MODE: ${mode}`, 'info');
   };
 
   // 영상 제어 함수들
@@ -296,87 +274,14 @@ const OperatorView = () => {
   const getCurrentDroneData = () => droneData[selectedDrone];
 
   return (
-    <div className="h-screen bg-gray-900 text-gray-100 overflow-hidden">
-      {/* Top Control Bar */}
-      <div className="h-16 bg-gray-800 border-b border-gray-700 flex items-center justify-between px-6">
-        <div className="flex items-center space-x-6">
-          <div className="flex items-center space-x-2">
-            <Gamepad2 className="w-6 h-6 text-green-400" />
-            <span className="text-xl font-bold font-mono">OPERATOR STATION</span>
-            <span className="text-xs text-green-400 font-mono">[PILOT]</span>
-          </div>
-          
-          <div className="h-6 w-px bg-gray-600"></div>
-          
-          {/* Drone Selection */}
-          <div className="flex items-center space-x-2">
-            <span className="text-sm font-mono text-gray-300">ACTIVE DRONE:</span>
-            <select 
-              value={selectedDrone}
-              onChange={(e) => setSelectedDrone(e.target.value)}
-              className="bg-gray-700 border border-gray-600 rounded px-3 py-1 text-sm font-mono text-green-400"
-            >
-              {availableDrones.map(drone => (
-                <option key={drone.id} value={drone.id}>
-                  {drone.id} - {drone.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Control Mode */}
-          <div className="flex items-center space-x-1">
-            {(['AUTO', 'ASSIST', 'MANUAL'] as ControlMode[]).map(mode => (
-              <button
-                key={mode}
-                onClick={() => switchControlMode(mode)}
-                className={`px-3 py-1 rounded text-sm font-mono transition-colors ${
-                  controlMode === mode 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                }`}
-              >
-                {mode}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex items-center space-x-4">
-          {/* Emergency Button */}
-          <button
-            onClick={handleEmergencyStop}
-            className={`px-4 py-2 rounded font-mono text-sm font-bold transition-colors ${
-              emergencyMode 
-                ? 'bg-red-600 text-white animate-pulse' 
-                : 'bg-red-700 hover:bg-red-600 text-white'
-            }`}
-          >
-            EMERGENCY STOP
-          </button>
-
-          {/* Armed Status */}
-          <div className={`flex items-center space-x-2 px-3 py-1 rounded ${
-            systemStatus.armed ? 'bg-red-600 text-white' : 'bg-gray-600 text-gray-300'
-          }`}>
-            {systemStatus.armed ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
-            <span className="text-sm font-mono">{systemStatus.armed ? 'ARMED' : 'DISARMED'}</span>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Clock className="w-4 h-4 text-gray-400" />
-            <span className="text-sm font-mono">{currentTime.toLocaleTimeString()}</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex h-full">
+    <PageLayout title="Operator Station" icon={<Gamepad2 className="w-6 h-6 text-green-400" />}>
+      <div className="operator-view">
         {/* Left Panel - Flight Controls */}
-        <div className="w-80 bg-gray-800 border-r border-gray-700 p-4 space-y-4 overflow-y-auto">
+        <div className="operator-view__left-panel">
           
           {/* Primary Flight Controls */}
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="text-sm font-medium mb-4 font-mono text-green-400">PRIMARY CONTROLS</div>
+          <div className="operator-view__panel-section">
+            <div className="operator-view__panel-title">PRIMARY CONTROLS</div>
             
             {/* Arm/Disarm */}
             <div className="mb-4">
@@ -437,8 +342,8 @@ const OperatorView = () => {
 
           {/* Manual Flight Controls */}
           {controlMode === 'MANUAL' && (
-            <div className="bg-gray-700 rounded-lg p-4">
-              <div className="text-sm font-medium mb-4 font-mono text-yellow-400">MANUAL CONTROLS</div>
+            <div className="operator-view__panel-section">
+              <div className="operator-view__panel-title" style={{ color: '#FFC107' }}>MANUAL CONTROLS</div>
               
               {/* Throttle Control */}
               <div className="mb-4">
@@ -543,8 +448,8 @@ const OperatorView = () => {
           )}
 
           {/* System Status */}
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="text-sm font-medium mb-4 font-mono text-cyan-400">SYSTEM STATUS</div>
+          <div className="operator-view__panel-section">
+            <div className="operator-view__panel-title">SYSTEM STATUS</div>
             
             <div className="space-y-3">
               {/* Battery */}
@@ -614,8 +519,8 @@ const OperatorView = () => {
           </div>
 
           {/* Notifications */}
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="text-sm font-medium mb-3 font-mono text-yellow-400">NOTIFICATIONS</div>
+          <div className="operator-view__panel-section">
+            <div className="operator-view__panel-title">NOTIFICATIONS</div>
             <div className="space-y-2 max-h-32 overflow-y-auto">
               {notifications.map(notification => (
                 <div key={notification.id} className={`p-2 rounded border-l-4 text-xs ${getNotificationColor(notification.type)}`}>
@@ -630,7 +535,7 @@ const OperatorView = () => {
         </div>
 
         {/* Center - Video Feed */}
-        <div className="flex-1 relative bg-black">
+        <div className="operator-view__center-panel">
           {/* Video Feed Display */}
           <div className="absolute inset-0">
             {videoFeed.active ? (
@@ -746,11 +651,11 @@ const OperatorView = () => {
         </div>
 
         {/* Right Panel - Telemetry & Mission */}
-        <div className="w-80 bg-gray-800 border-l border-gray-700 p-4 space-y-4 overflow-y-auto">
+        <div className="operator-view__right-panel">
           
           {/* Current Drone Info */}
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="text-sm font-medium mb-3 font-mono text-blue-400">{selectedDrone} STATUS</div>
+          <div className="operator-view__panel-section">
+            <div className="operator-view__panel-title">CURRENT DRONE INFO</div>
             
             {getCurrentDroneData() && (
               <div className="space-y-3">
@@ -788,8 +693,8 @@ const OperatorView = () => {
           </div>
 
           {/* Detailed Telemetry */}
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="text-sm font-medium mb-3 font-mono text-purple-400">TELEMETRY</div>
+          <div className="operator-view__panel-section">
+            <div className="operator-view__panel-title">TELEMETRY</div>
             
             {getCurrentDroneData() && (
               <div className="space-y-3">
@@ -862,8 +767,8 @@ const OperatorView = () => {
           </div>
 
           {/* Payload Control */}
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="text-sm font-medium mb-3 font-mono text-cyan-400">PAYLOAD CONTROL</div>
+          <div className="operator-view__panel-section">
+            <div className="operator-view__panel-title">PAYLOAD CONTROL</div>
             
             <div className="space-y-3">
               {/* Camera Control */}
@@ -911,8 +816,8 @@ const OperatorView = () => {
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-gray-700 rounded-lg p-4">
-            <div className="text-sm font-medium mb-3 font-mono text-green-400">QUICK ACTIONS</div>
+          <div className="operator-view__panel-section">
+            <div className="operator-view__panel-title">QUICK ACTIONS</div>
             
             <div className="grid grid-cols-2 gap-2">
               <button className="bg-cyan-600 hover:bg-cyan-700 text-white py-2 px-3 rounded font-mono text-xs">
@@ -935,7 +840,7 @@ const OperatorView = () => {
           </div>
         </div>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

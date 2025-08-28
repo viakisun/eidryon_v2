@@ -1,0 +1,52 @@
+// Styles for the Analyst View dashboard
+
+.analyst-view {
+  display: flex;
+  height: 100%;
+
+  &__left-panel,
+  &__right-panel {
+    width: 20rem; // 320px
+    flex-shrink: 0;
+    background-color: $color-surface;
+    padding: 1rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  &__right-panel {
+    width: 24rem; // 384px
+  }
+
+  &__left-panel {
+    border-right: 1px solid $color-border;
+  }
+
+  &__right-panel {
+    border-left: 1px solid $color-border;
+  }
+
+  &__center-panel {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__panel-section {
+    background-color: darken($color-surface, 4%);
+    border: 1px solid $color-border;
+    border-radius: $radius-md;
+    padding: 1rem;
+  }
+
+  &__panel-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: $font-sans;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    color: $color-accent;
+  }
+}
