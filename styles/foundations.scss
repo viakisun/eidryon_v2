@@ -1,0 +1,61 @@
+@import 'design-tokens';
+
+// --- Global Resets & Box Sizing ---
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+// --- Body Defaults ---
+body {
+  background-color: $color-bg;
+  color: $color-text;
+  font-family: $font-sans;
+  font-size: $fs-body;
+  font-weight: $fw-body;
+  line-height: $lh-body;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// --- Base Typography ---
+h1, h2, h3, h4, h5, h6 {
+  color: $color-text;
+  font-family: $font-sans;
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: $fs-h1;
+  font-weight: $fw-h1;
+  line-height: $lh-h1;
+}
+
+h2 {
+  font-size: $fs-h2;
+  font-weight: $fw-h2;
+  line-height: $lh-h2;
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
+a {
+  color: $color-primary;
+  text-decoration: none;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: lighten($color-primary, 10%);
+  }
+}
+
+// --- Accessibility ---
+:focus-visible {
+  outline: 2px solid $color-accent;
+  outline-offset: 2px;
+}

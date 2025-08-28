@@ -1,0 +1,14 @@
+.btn {
+  border-radius: $radius-md; font-weight: 600;
+  padding: 14px 32px; text-transform: uppercase;
+  transition: background-color .15s ease, transform .1s ease;
+
+  &--primary {
+    background: $color-primary; color: #fff;
+    &:hover { background: lighten($color-primary, 8%); transform: translateY(-2px); }
+  }
+  &--secondary {
+    border: 1px solid $color-primary; color: $color-primary; background: transparent;
+    &:hover { background: rgba(25,118,255,.08); }
+  }
+}

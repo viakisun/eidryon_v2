@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
-import "./globals.css";
+import { Inter } from "next/font/google";
+import "../../styles/main.scss";
 
-const geist = Geist({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], display: 'swap' });
 
 export const metadata: Metadata = {
-  title: "Eidryon Dashboards",
-  description: "Advanced operational dashboards",
+  title: "Drone Command Platform",
+  description: "Redefining Drone Command & Control",
 };
 
 export default function RootLayout({
@@ -16,9 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={geist.className}>
-        <main className="bg-gray-900 text-gray-100 min-h-screen">{children}</main>
-      </body>
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }

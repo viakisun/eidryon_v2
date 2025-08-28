@@ -1,0 +1,26 @@
+// Palette
+$color-bg:        #0A0D12;   // deep navy-black
+$color-surface:   #141A22;   // dark panels
+$color-panel:     #1D2430;
+
+$color-primary:   #1976FF;   // tech blue
+$color-accent:    #00E3B2;   // neon cyan accent
+$color-alert:     #FF4D4D;   // mission alert red
+
+$color-text:      #F2F4F8;   // high-contrast light
+$color-muted:     #9AA0AF;   // secondary text
+$color-border:    #2A3240;
+
+// Shadows & Radii
+$shadow-sm: 0 2px 6px rgba(0,0,0,.35);
+$shadow-md: 0 6px 16px rgba(0,0,0,.45);
+
+$radius-md: 12px; // uniform, authoritative
+
+// Typography
+$font-sans: "Inter", "Montserrat", "Noto Sans KR", sans-serif;
+
+$fs-display: clamp(48px, 7vw, 80px); $fw-display: 800; $lh-display: 1.15;
+$fs-h1: 36px; $fw-h1: 700; $lh-h1: 1.25;
+$fs-h2: 24px; $fw-h2: 600; $lh-h2: 1.3;
+$fs-body: 16px; $fw-body: 400; $lh-body: 1.6;
