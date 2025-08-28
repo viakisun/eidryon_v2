@@ -1,0 +1,70 @@
+.feature-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.feature-card {
+  background-color: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: $color-text;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    background-color: lighten($color-surface, 5%);
+    border-color: $color-primary;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    background-color: rgba($color-primary, 0.1);
+    color: $color-primary;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__title {
+    font-size: $fs-h2;
+    font-weight: $fw-h2;
+  }
+
+  &__body {
+    color: $color-muted;
+    font-size: $fs-body;
+    line-height: $lh-body;
+    flex-grow: 1;
+  }
+
+  &__link {
+      color: $color-primary;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 14px;
+      margin-top: 1.5rem;
+      align-self: flex-start;
+
+      &:hover {
+          text-decoration: underline;
+      }
+  }
+}

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Zap, Target, RadioTower } from 'lucide-react';
+import { Zap, Target, RadioTower, User, GitBranch, ClipboardList, BrainCircuit } from 'lucide-react';
 
 export default function LandingPage() {
   return (
@@ -67,30 +67,38 @@ export default function LandingPage() {
         <section className="section">
           <div className="container">
             <h2 className="section-title">Core Interfaces</h2>
-            <div className="grid grid--4-col">
-              <Link href="/commander" className="card-link">
-                <div className="card">
-                  <h4 className="card__title">Commander View</h4>
-                  <p className="card__body">Top-level strategic oversight and decision-making.</p>
+            <div className="feature-grid">
+              <Link href="/commander" className="feature-card">
+                <div className="feature-card__header">
+                  <div className="feature-card__icon"><User size={24} /></div>
+                  <h3 className="feature-card__title">Commander</h3>
                 </div>
+                <p className="feature-card__body">Top-level strategic oversight and mission authorization.</p>
+                <div className="feature-card__link">View Interface &rarr;</div>
               </Link>
-              <Link href="/operator" className="card-link">
-                <div className="card">
-                  <h4 className="card__title">Operator View</h4>
-                  <p className="card__body">Direct control and real-time telemetry for individual assets.</p>
+              <Link href="/operator" className="feature-card">
+                <div className="feature-card__header">
+                  <div className="feature-card__icon"><GitBranch size={24} /></div>
+                  <h3 className="feature-card__title">Operator</h3>
                 </div>
+                <p className="feature-card__body">Direct control and real-time telemetry for individual assets.</p>
+                <div className="feature-card__link">View Interface &rarr;</div>
               </Link>
-              <Link href="/planner" className="card-link">
-                <div className="card">
-                  <h4 className="card__title">Planner View</h4>
-                  <p className="card__body">Design, simulate, and assign complex mission plans.</p>
+              <Link href="/planner" className="feature-card">
+                <div className="feature-card__header">
+                  <div className="feature-card__icon"><ClipboardList size={24} /></div>
+                  <h3 className="feature-card__title">Planner</h3>
                 </div>
+                <p className="feature-card__body">Design, simulate, and assign complex multi-asset mission plans.</p>
+                <div className="feature-card__link">View Interface &rarr;</div>
               </Link>
-              <Link href="/analyst" className="card-link">
-                <div className="card">
-                  <h4 className="card__title">Analyst View</h4>
-                  <p className="card__body">Fuse and analyze multi-source intelligence data.</p>
+              <Link href="/analyst" className="feature-card">
+                <div className="feature-card__header">
+                  <div className="feature-card__icon"><BrainCircuit size={24} /></div>
+                  <h3 className="feature-card__title">Analyst</h3>
                 </div>
+                <p className="feature-card__body">Fuse and analyze multi-source intelligence data to inform decisions.</p>
+                <div className="feature-card__link">View Interface &rarr;</div>
               </Link>
             </div>
           </div>
