@@ -1,0 +1,26 @@
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.hero__title {
+  font-size: $fs-display;
+  font-weight: $fw-display;
+  line-height: $lh-display;
+  color: $color-text;
+  text-shadow: 0 0 20px rgba(0,227,178,.2);
+  margin-bottom: 1rem;
+}
+
+.hero__subtitle {
+    font-size: $fs-h2;
+    font-weight: $fw-h2;
+    color: $color-muted;
+    max-width: 600px;
+    margin-bottom: 2rem;
+}

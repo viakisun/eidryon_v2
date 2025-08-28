@@ -1,0 +1,13 @@
+.card {
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  padding: 32px;
+  box-shadow: $shadow-sm;
+  transition: box-shadow .2s ease, transform .15s ease;
+
+  &:hover { box-shadow: $shadow-md; transform: translateY(-2px); }
+
+  &__title { font-size: $fs-h2; font-weight: $fw-h2; margin-bottom: 8px; }
+  &__body  { font-size: $fs-body; color: $color-muted; }
+}
