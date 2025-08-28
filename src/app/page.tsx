@@ -12,8 +12,8 @@ export default function LandingPage() {
             An integrated platform for autonomous systems, delivering unparalleled situational awareness and operational superiority.
           </p>
           <div style={{ display: 'flex', gap: '1rem' }}>
-            <Link href="/platform" className="btn btn--primary">View Platform</Link>
-            <Link href="/contact" className="btn btn--secondary">Contact Sales</Link>
+            <Link href="/commander" className="btn btn--primary">View Platform</Link>
+            <Link href="/planner" className="btn btn--secondary">Plan a Mission</Link>
           </div>
         </header>
 
@@ -63,27 +63,35 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* 5. Product Modules Overview */}
+        {/* 5. Core Interfaces */}
         <section className="section">
           <div className="container">
-            <h2 className="section-title">A Unified System</h2>
+            <h2 className="section-title">Core Interfaces</h2>
             <div className="grid grid--4-col">
-              <div className="card">
-                <h4 className="card__title">Fleet Monitor</h4>
-                <p className="card__body">Comprehensive dashboard for all assets.</p>
-              </div>
-              <div className="card">
-                <h4 className="card__title">Mission Planner</h4>
-                <p className="card__body">Design and simulate operations.</p>
-              </div>
-              <div className="card">
-                <h4 className="card__title">Analytics Engine</h4>
-                <p className="card__body">Post-mission data analysis.</p>
-              </div>
-              <div className="card">
-                <h4 className="card__title">Security Framework</h4>
-                <p className="card__body">Manage access and data encryption.</p>
-              </div>
+              <Link href="/commander" className="card-link">
+                <div className="card">
+                  <h4 className="card__title">Commander View</h4>
+                  <p className="card__body">Top-level strategic oversight and decision-making.</p>
+                </div>
+              </Link>
+              <Link href="/operator" className="card-link">
+                <div className="card">
+                  <h4 className="card__title">Operator View</h4>
+                  <p className="card__body">Direct control and real-time telemetry for individual assets.</p>
+                </div>
+              </Link>
+              <Link href="/planner" className="card-link">
+                <div className="card">
+                  <h4 className="card__title">Planner View</h4>
+                  <p className="card__body">Design, simulate, and assign complex mission plans.</p>
+                </div>
+              </Link>
+              <Link href="/analyst" className="card-link">
+                <div className="card">
+                  <h4 className="card__title">Analyst View</h4>
+                  <p className="card__body">Fuse and analyze multi-source intelligence data.</p>
+                </div>
+              </Link>
             </div>
           </div>
         </section>
