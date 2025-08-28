@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 
 interface TextObject {
   type: 'plain_text' | 'mrkdwn';
@@ -440,21 +441,12 @@ const BlockRenderer = ({ block }: { block: Block }) => {
           )}
           {block.accessory && block.accessory.type === 'button' && (
             <div className="mt-4">
-               <a
+              <Link
                 href={block.accessory.url}
-                onClick={(e) => {
-                    e.preventDefault();
-                    const targetUrl = e.currentTarget.href;
-                    if (document.fullscreenElement) {
-                        document.exitFullscreen().then(() => window.open(targetUrl, '_self'));
-                    } else {
-                        document.documentElement.requestFullscreen().then(() => window.open(targetUrl, '_self'));
-                    }
-                }}
                 className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors"
-                >
+              >
                 {block.accessory.text.text}
-              </a>
+              </Link>
             </div>
           )}
         </div>
@@ -479,24 +471,15 @@ const BlockRenderer = ({ block }: { block: Block }) => {
                 if (element.type === 'button') {
                   const accessory = element as Accessory;
                   return (
-                    <a
+                    <Link
                       key={index}
                       href={accessory.url}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        const targetUrl = e.currentTarget.href;
-                        if (document.fullscreenElement) {
-                            document.exitFullscreen().then(() => window.open(targetUrl, '_self'));
-                        } else {
-                            document.documentElement.requestFullscreen().then(() => window.open(targetUrl, '_self'));
-                        }
-                      }}
                       className={`bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors text-lg flex items-center justify-center space-x-2
                         ${accessory.style === 'primary' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-600 hover:bg-gray-700'}`}
                     >
                       <span>{accessory.text.text.split(' ')[0]}</span>
                       <span>{accessory.text.text.split(' ').slice(1).join(' ')}</span>
-                    </a>
+                    </Link>
                   )
                 }
                 return null;
